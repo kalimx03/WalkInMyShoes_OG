@@ -445,7 +445,7 @@ Well within ₹8,000 ($136) AWS credit for hackathon phase.
 
 ---
 
-## 👤 Team
+## 👤 About
 
 **Kalim Sayyed** — Full Stack Developer & Project Lead
 - GitHub: [@kalimx03](https://github.com/kalimx03)
@@ -459,6 +459,7 @@ Well within ₹8,000 ($136) AWS credit for hackathon phase.
 | Live Demo | https://d2d1ibzdtgm1nq.cloudfront.net |
 | GitHub | https://github.com/kalimx03/WalkInMyShoes_OG |
 | AWS Region | us-east-1 (N. Virginia) |
+| Technical Article | https://builder.aws.com/content/3AdIzUsC2O9YviSkGYNYWMPKTvg/building-walkinmyshoes-an-immersive-accessibility-awareness-platform-using-ai-and-interactive-simulations |
 
 ---
 
