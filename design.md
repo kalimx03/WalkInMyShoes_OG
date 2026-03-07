@@ -1,89 +1,133 @@
-# WalkInMyShoes - Technical Design Specification
+# WalkInMyShoes — Technical Design Specification
 
-## Document Information
-
-**Project**: WalkInMyShoes - Immersive Disability Empathy & Accessibility Training Platform  
-**Version**: 1.0  
-**Date**: March 1, 2026  
-**Status**: Production Architecture  
-**Cloud Provider**: Amazon Web Services (AWS)
+**Project**: WalkInMyShoes — Immersive Disability Empathy & Accessibility Training Platform
+**Version**: 2.0 (Bedrock Edition)
+**Date**: March 7, 2026
+**Status**: Production — Live
+**Live URL**: https://d2d1ibzdtgm1nq.cloudfront.net
+**GitHub**: https://github.com/kalimx03/WalkInMyShoes_OG
 
 ---
 
-## 1. System Architecture Overview
+## 1. System Architecture
 
 ### 1.1 High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         USER DEVICES                             │
-│  Desktop Browser | Mobile Browser | VR Headset | AR Camera      │
-└────────────────────────┬────────────────────────────────────────┘
-                         │ HTTPS
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    AWS CLOUDFRONT (CDN)                          │
-│  • Global Edge Locations                                        │
-│  • HTTPS Enforcement                                            │
-│  • Asset Caching (TTL: 1 hour)                                  │
-│  • Gzip Compression                                             │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-         ┌───────────────┴───────────────┐
-         │                               │
-         ▼                               ▼
-┌──────────────────┐          ┌──────────────────────┐
-│   AWS S3 BUCKET  │          │   API GATEWAY        │
-│  (Static Assets) │          │   (REST API)         │
-│                  │          │                      │
-│  • index.html    │          │  • /auth/*           │
-│  • JS bundles    │          │  • /progress/*       │
-│  • 3D models     │          │  • /analytics/*      │
-│  • Textures      │          │  • /leaderboard/*    │
-└──────────────────┘          └──────────┬───────────┘
-                                         │
-
-                                         ▼
-                              ┌──────────────────────┐
-                              │   AWS LAMBDA         │
-                              │   (Serverless)       │
-                              │                      │
-                              │  • Node.js 18        │
-                              │  • Auto-scaling      │
-                              │  • 512MB memory      │
-                              └──────────┬───────────┘
-                                         │
-                 ┌───────────────────────┼───────────────────────┐
-                 │                       │                       │
-                 ▼                       ▼                       ▼
-        ┌────────────────┐    ┌──────────────────┐   ┌──────────────────┐
-        │  AWS COGNITO   │    │  AWS DYNAMODB    │   │  PARAMETER STORE │
-        │  (Auth)        │    │  (Database)      │   │  (Secrets)       │
-        │                │    │                  │   │                  │
-        │  • User Pools  │    │  • users         │   │  • AI API Keys   │
-        │  • Identity    │    │  • progress      │   │  • AWS Keys      │
-        │    Pools       │    │  • leaderboard   │   │                  │
-        └────────────────┘    │  • audits        │   └──────────────────┘
-                              └──────────────────┘
-                                         │
-                                         ▼
-                              ┌──────────────────────┐
-                              │  AI SERVICE APIs     │
-                              │                      │
-                              │  • Language Models   │
-                              │  • Vision Models     │
-                              │  • Generative AI     │
-                              └──────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           USER (Any Device)                             │
+│          Desktop Browser | Mobile | Tablet | Future: VR Headset         │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   │ HTTPS (TLS 1.3)
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    AMAZON CLOUDFRONT                                    │
+│  Distribution ID: E2FKI267871EMW                                        │
+│  Domain: d2d1ibzdtgm1nq.cloudfront.net                                 │
+│  • 450+ global edge locations                                           │
+│  • HTTPS enforced (HTTP → HTTPS redirect)                              │
+│  • Brotli + Gzip compression                                           │
+│  • Cache-Control: immutable for JS/CSS, no-cache for index.html        │
+└──────────┬──────────────────────────────────────┬───────────────────────┘
+           │                                      │
+           ▼                                      ▼
+┌──────────────────────┐              ┌───────────────────────────────────┐
+│  AMAZON S3           │              │  AMAZON API GATEWAY               │
+│  walkinmyshoes-      │              │  ID: x5rbnqm2v4                   │
+│  frontend-2026       │              │  Region: us-east-1                │
+│                      │              │  Stage: /dev                      │
+│  Static Assets:      │              │                                   │
+│  • index.html        │              │  Routes:                          │
+│  • /assets/*.js      │              │  POST  /ai         → Lambda       │
+│  • /assets/*.css     │              │  GET   /analytics  → Lambda       │
+│  • Source maps       │              │  POST  /progress   → Lambda       │
+│                      │              │  GET   /leaderboard → Lambda      │
+│  Access: CloudFront  │              │  OPTIONS /* → CORS Mock           │
+│  OAC only (private)  │              │                                   │
+└──────────────────────┘              └──────────────────┬────────────────┘
+                                                         │ Lambda Proxy
+                                                         ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                         AWS LAMBDA                                     │
+│  Function: walkinmyshoes-ai                                           │
+│  ARN: arn:aws:lambda:us-east-1:210454360133:function:walkinmyshoes-ai │
+│  Runtime: Node.js 20.x (ES Modules)                                   │
+│  Memory: 256 MB | Timeout: 60s | Handler: index.handler               │
+│  IAM Role: walkinmyshoes-ai-role-ms7g9...                             │
+│                                                                        │
+│  Actions Handled:                                                      │
+│  ┌──────────────────────────────────────────────────────────────────┐ │
+│  │ analyzeAccessibility  → Rekognition + Bedrock → JSON audit       │ │
+│  │ editImage             → Rekognition + Bedrock → remediation text │ │
+│  │ chat                  → Bedrock → conversational response        │ │
+│  └──────────────────────────────────────────────────────────────────┘ │
+└──────────┬──────────────────────────────────┬──────────────────────────┘
+           │                                  │
+           ▼                                  ▼
+┌──────────────────────────┐    ┌──────────────────────────────────────────┐
+│  AMAZON REKOGNITION      │    │  AMAZON BEDROCK                          │
+│  Region: us-east-1       │    │  Region: us-east-1                       │
+│                          │    │  Model: us.amazon.nova-lite-v1:0         │
+│  Operations:             │    │  (Amazon Nova 2 Lite)                    │
+│  • DetectLabels          │    │                                          │
+│    MaxLabels: 40         │    │  Use Cases:                              │
+│    MinConfidence: 55%    │    │  • ADA/WCAG/RPWD accessibility audit     │
+│    Returns: labels,      │    │  • Contractor remediation reports        │
+│    confidence, parents,  │    │  • Multi-turn accessibility expert chat  │
+│    bounding boxes        │    │                                          │
+│                          │    │  Inference Type:                         │
+│  • DetectText            │    │  Cross-region on-demand throughput       │
+│    Returns: lines,       │    │  (us. prefix = US inference profile)     │
+│    confidence, text,     │    │                                          │
+│    geometry              │    │  Token limits:                           │
+│                          │    │  Audit: 2500 max_new_tokens              │
+│  • Parallel execution:   │    │  Chat: 700 max_new_tokens                │
+│    Promise.all([...])    │    │  Temperature: 0.5                        │
+└──────────────────────────┘    └──────────────────────────────────────────┘
+                                                │
+                                                ▼
+                               ┌────────────────────────────────────────────┐
+                               │  AMAZON COGNITO                            │
+                               │  User Pool: us-east-1_VHC0a9xM3           │
+                               │  Client: 20iorjt3l68ebjgohdrd0agj8a       │
+                               │  Domain: walkinmyshoes-auth.auth...        │
+                               │                                            │
+                               │  • Hosted UI for sign-in/sign-up          │
+                               │  • JWT access + refresh tokens             │
+                               │  • Session management                      │
+                               │  • OAuth 2.0 flows                         │
+                               └────────────────────────────────────────────┘
 ```
 
-### 1.2 Architecture Principles
+### 1.2 Request Flow: AR Accessibility Scan (Critical Path)
 
-**Serverless-First**: Minimize operational overhead with managed services  
-**Scalability**: Auto-scale from 1 to 10,000+ concurrent users  
-**Security**: Defense in depth with multiple security layers  
-**Performance**: Global CDN with edge caching  
-**Cost-Efficiency**: Pay-per-use model optimized for startup budget  
-**Resilience**: Multi-AZ deployment with automatic failover  
+```
+1. User opens AR Auditor → camera permission requested
+2. User clicks "Scan Now"
+3. Browser: canvas.toDataURL('image/jpeg', 0.8) → base64 string
+4. services/bedrock.ts: POST to API Gateway /ai
+   Body: { action: 'analyzeAccessibility', imageBase64: '...' }
+5. API Gateway → Lambda proxy integration
+6. Lambda: Buffer.from(imageBase64, 'base64') → imgBuf
+7. Size check: imgBuf.length > 4MB → error
+8. Promise.all([
+     rekognition.DetectLabels({ Bytes: imgBuf, MaxLabels: 40, MinConfidence: 55 }),
+     rekognition.DetectText({ Bytes: imgBuf })
+   ])
+9. Build scene description:
+   - labels: "Door (97%, in: Architecture); Person (99%)..."
+   - visibleText: "EXIT, PUSH, STAIRS"
+   - boxes: "Door: [top=200, left=100, bottom=800, right=400]..."
+10. Bedrock Nova 2 Lite:
+    system: [{ text: "You are ADA inspector..." }]
+    messages: [{ role: 'user', content: [{ text: fullAuditPrompt }] }]
+    inferenceConfig: { max_new_tokens: 2500, temperature: 0.5 }
+11. Parse response: body.output.message.content[0].text
+12. Strip markdown fences → JSON.parse → validate issues[]
+13. Return: { statusCode: 200, body: JSON.stringify({ result: auditJSON }) }
+14. Frontend: parse issues → render AR bounding boxes on camera frame
+15. User sees color-coded overlays with ADA violations + costs
+```
 
 ---
 
@@ -91,1541 +135,604 @@
 
 ### 2.1 Technology Stack
 
+```
+Core:
+  React 18.3.1          — UI component library
+  TypeScript 5.5.3      — Type safety
+  Vite 5.3.4            — Build tool + dev server
 
-```typescript
-// Core Framework
-- React 18.2.0 (UI library)
-- TypeScript 5.0+ (Type safety)
-- Vite 4.0+ (Build tool)
+3D & Simulation:
+  Three.js              — WebGL 3D rendering for VR scenes
+  WebXR Device API      — VR/AR device integration (native browser)
+  Web Audio API         — Hearing loss audio filters
+  SVG Filters           — Color blindness simulation matrices
+  CSS Animations        — Visual impairment progressive blur
 
-// 3D & WebXR
-- Three.js 0.150+ (3D rendering)
-- @react-three/fiber (React renderer for Three.js)
-- @react-three/drei (Helper components)
+UI:
+  Tailwind CSS          — Utility-first styling
+  React Portals         — Modal overlays
+  React Refs            — Imperative AI Guide control
 
-// UI & Styling
-- Tailwind CSS 3.3+ (Utility-first CSS)
-- Framer Motion (Animations)
-- Lucide React (Icons)
+State Management:
+  React useState        — Local component state
+  React useRef          — Mutable refs (camera, AI guide)
+  React useCallback     — Memoized handlers
+  React Context         — Auth state (Cognito)
 
-// State Management
-- React Context API (Global state)
-- React Hooks (Local state)
-
-// API & Data
-- Axios (HTTP client)
-- AWS Amplify (Cognito integration)
+Charts & Data:
+  Recharts 2.12.7       — Impact Dashboard visualization
 ```
 
 ### 2.2 Component Architecture
 
 ```
-src/
-├── components/
-│   ├── simulations/
-│   │   ├── VisualImpairmentScene.tsx    # Vision loss simulation
-│   │   ├── HearingLossScene.tsx         # Hearing impairment simulation
-│   │   ├── MotorDisabilityScene.tsx     # Wheelchair navigation
-│   │   └── ColorBlindnessScene.tsx      # Color vision deficiency
-│   ├── ar/
-│   │   └── ARAuditor.tsx                # AR scanning & analysis
-│   ├── ai/
-│   │   └── AIGuide.tsx                  # Conversational assistant
-│   ├── dashboard/
-│   │   └── ImpactDashboard.tsx          # Analytics & certification
-│   ├── onboarding/
-│   │   └── Onboarding.tsx               # Tutorial flow
-│   └── layout/
-│       └── Layout.tsx                   # App shell & navigation
-├── services/
-│   ├── api.ts                           # Backend API client
-│   ├── auth.ts                          # Cognito authentication
-│   └── ai.ts                            # AI service integration
-├── hooks/
-│   ├── useAuth.ts                       # Authentication hook
-│   ├── useProgress.ts                   # Progress tracking hook
-│   └── useAI.ts                         # AI interaction hook
-├── types/
-│   └── index.ts                         # TypeScript definitions
-├── utils/
-│   ├── empathyScoring.ts                # Empathy calculation
-│   └── analytics.ts                     # Event tracking
-└── constants/
-    └── index.tsx                        # Configuration constants
+App.tsx (Router)
+├── Layout.tsx (Navigation shell)
+│   ├── /                    → LandingPage / Onboarding.tsx
+│   ├── /simulations         → Scenario selector
+│   │   ├── VisualImpairmentScene.tsx
+│   │   │   └── AIGuide.tsx (floating panel)
+│   │   ├── HearingLossScene.tsx
+│   │   │   └── AIGuide.tsx (floating panel)
+│   │   ├── MotorDisabilityScene.tsx
+│   │   │   └── AIGuide.tsx (floating panel)
+│   │   └── ColorBlindnessScene.tsx
+│   │       └── AIGuide.tsx (floating panel)
+│   ├── /ar-auditor          → ARAuditor.tsx
+│   │   ├── Camera feed (canvas + video)
+│   │   ├── AR overlay (SVG bounding boxes)
+│   │   ├── Issue list panel
+│   │   ├── AIGuide.tsx (mode='fixed')
+│   │   └── Synthesize Fix panel
+│   └── /impact              → ImpactDashboard.tsx
+│       ├── Empathy score card
+│       ├── Scenarios completed
+│       ├── Recharts visualizations
+│       └── Certificate download
+└── Onboarding.tsx (first-visit tutorial overlay)
 ```
 
-### 2.3 State Management Design
+### 2.3 Services Layer
 
+#### services/bedrock.ts — Amazon Bedrock Integration
 
 ```typescript
-// Global Application State
-interface AppState {
-  // Authentication
-  user: User | null;
-  isAuthenticated: boolean;
-  
-  // Current Session
-  currentView: 'menu' | 'simulation' | 'ar' | 'dashboard';
-  activeSimulation: SimulationType | null;
-  
-  // Progress Tracking
-  completedScenarios: string[];
-  empathyScore: number;
-  sessionStartTime: number;
-  
-  // AI Conversation
-  chatHistory: Message[];
-  aiContext: string;
-  
-  // AR Auditor
-  detectedIssues: AccessibilityIssue[];
-  currentAudit: Audit | null;
+// Core function: proxies all AI requests through Lambda
+async function callLambda(payload: object, retries = 2): Promise<any>
+  // Fetch: POST to ${VITE_API_BASE_URL}/ai
+  // Timeout: 55 seconds (AbortController)
+  // Retry: up to 2 times on network error, 1.5s backoff on 429
+  // Error: throws with message for UI to display
+
+// AR Auditor: camera frame → Bedrock audit JSON
+async function analyzeAccessibility(imageBase64: string): Promise<string>
+  // Sends to Lambda: { action: 'analyzeAccessibility', imageBase64 }
+  // Strips markdown fences from Nova response
+  // Validates JSON has issues[] array
+  // Returns: JSON.stringify(parsed) or safe fallback JSON
+
+// Synthesize Fix: issue context → remediation report
+async function editImage(imageBase64: string, prompt: string): Promise<string>
+  // Sends to Lambda: { action: 'editImage', imageBase64, prompt }
+  // Returns raw text report (markdown formatted)
+
+// AI Guide: creates chat session object
+function createGuideChat(context: string): { sendMessage(text): Promise<{text}> }
+  // Maintains local history array in closure
+  // Sends: { action: 'chat', context, messages: [...history] }
+  // Pushes both user and assistant messages to history
+  // Returns: { text: reply }
+
+export { bedrockService as geminiService } // alias for zero component changes
+```
+
+#### services/auth.ts — Amazon Cognito
+
+```typescript
+// Cognito configuration
+const cognitoConfig = {
+  userPoolId: VITE_COGNITO_USER_POOL_ID,     // us-east-1_VHC0a9xM3
+  clientId: VITE_COGNITO_CLIENT_ID,           // 20iorjt3l68ebjgohdrd0agj8a
+  domain: VITE_COGNITO_DOMAIN                  // walkinmyshoes-auth.auth...
 }
 
-// Component-Level State (React Hooks)
-- useState: Local UI state (modals, forms, toggles)
-- useEffect: Side effects (API calls, subscriptions)
-- useContext: Access global state
-- useReducer: Complex state logic (simulation progress)
-- useMemo: Performance optimization (expensive calculations)
-- useCallback: Memoized callbacks (event handlers)
+// Auth methods
+signIn()         → redirect to Cognito hosted UI
+signOut()        → clear tokens + redirect
+getUser()        → decode JWT, return user profile
+getToken()       → return current access token
+refreshSession() → use refresh token to get new access token
 ```
 
-### 2.4 Routing Strategy
+#### services/api.ts — Backend API Client
 
 ```typescript
-// React Router v6 Configuration
-const routes = [
-  { path: '/', element: <LandingPage /> },
-  { path: '/onboarding', element: <Onboarding /> },
-  { path: '/simulations', element: <SimulationMenu /> },
-  { path: '/simulation/:type', element: <SimulationView /> },
-  { path: '/ar-auditor', element: <ARAuditor /> },
-  { path: '/dashboard', element: <ImpactDashboard /> },
-  { path: '/login', element: <Login /> },
-  { path: '/signup', element: <Signup /> },
-];
-
-// Protected Routes (require authentication)
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
+// REST calls to API Gateway for progress, analytics, leaderboard
+saveProgress(userId, sessionData)    → POST /progress
+getLeaderboard()                     → GET /leaderboard
+getAnalytics(userId)                 → GET /analytics
 ```
 
-### 2.5 Performance Optimization
+### 2.4 VR Scene Design
 
-**Code Splitting**:
-```typescript
-// Lazy load heavy components
-const VisualImpairmentScene = lazy(() => import('./components/VisualImpairmentScene'));
-const ARAuditor = lazy(() => import('./components/ARAuditor'));
+#### Visual Impairment Scene (VisualImpairmentScene.tsx)
 
-// Suspense boundaries
-<Suspense fallback={<LoadingSpinner />}>
-  <VisualImpairmentScene />
-</Suspense>
+```
+CSS filter pipeline:
+Stage 0 (Normal):   blur(0px) brightness(1) contrast(1)
+Stage 1 (Mild):     blur(2px) brightness(0.9)
+Stage 2 (Moderate): blur(5px) brightness(0.7) contrast(0.8)
+Stage 3 (Severe):   blur(10px) brightness(0.5) contrast(0.6)
+Stage 4 (Profound): blur(20px) brightness(0.2) grayscale(0.8)
+
+3D Environment: Three.js canvas
+  - City block with buildings, paths, signage
+  - NavigationControls for WASD/touch movement
+  - Task tracker overlay (read sign, find entrance, cross street)
 ```
 
-**Asset Optimization**:
-- 3D models: GLB format with Draco compression (<500KB per model)
-- Textures: WebP format with progressive loading
-- Images: Lazy loading with Intersection Observer
-- Fonts: Subset to used characters only
+#### Hearing Loss Scene (HearingLossScene.tsx)
 
-**Bundle Optimization**:
-- Tree shaking: Remove unused code
-- Minification: Terser for production builds
-- Gzip compression: CloudFront automatic compression
-- Target bundle size: <2MB initial load
+```
+Web Audio API pipeline:
+  AudioContext → MediaStreamSource → BiquadFilter(lowpass) → GainNode → destination
+  
+  Filters:
+  - Lowpass: cutoff 1000Hz (moderate loss)
+  - Gain reduction: 0.3–0.7× volume
+  - Tinnitus: OscillatorNode at 6000Hz, gain 0.05
 
----
+Caption system:
+  - Captions ON: full text, synchronized
+  - Captions OFF: simulated degradation, partial loss
+  - Toggle via accessibility control
+```
 
-## 3. Backend Architecture
+#### Motor Disability Scene (MotorDisabilityScene.tsx)
 
-### 3.1 AWS Lambda Functions
+```
+Wheelchair physics (CSS/JS simulation):
+  - Max speed: 2px/frame (vs 5px normal)
+  - Turning: requires separate left/right controls (no strafing)
+  - Door fatigue: progress bar fills on hold, resets if released early
+  - Barrier detection: collision boxes on narrow passages
 
-
-#### 3.1.1 Authentication Functions
-
-**Function**: `auth-signup`
-```yaml
-Handler: functions/auth/signup.handler
-Runtime: nodejs18.x
-Memory: 256MB
-Timeout: 10s
 Environment:
-  - COGNITO_USER_POOL_ID
-  - COGNITO_APP_CLIENT_ID
-Triggers:
-  - API Gateway: POST /auth/signup
+  - Two-floor building layout
+  - Accessible route: ramp + wide door + elevator
+  - Inaccessible route: stairs + narrow door + no lift
+  - NPC patrol paths on timed intervals
 ```
 
-**Logic**:
-1. Validate email format and password strength
-2. Create user in Cognito User Pool
-3. Send verification email
-4. Create user record in DynamoDB
-5. Return user ID and temporary token
+#### Color Blindness Scene (ColorBlindnessScene.tsx)
 
-**Function**: `auth-login`
-```yaml
-Handler: functions/auth/login.handler
-Runtime: nodejs18.x
-Memory: 256MB
-Timeout: 10s
-Triggers:
-  - API Gateway: POST /auth/login
 ```
+SVG filter matrices (scientifically accurate):
+  Protanopia:    [0.567, 0.433, 0, 0.558, 0.442, 0, 0, 0.242, 0.758]
+  Deuteranopia:  [0.625, 0.375, 0, 0.7, 0.3, 0, 0, 0.3, 0.7]
+  Tritanopia:    [0.95, 0.05, 0, 0, 0.433, 0.567, 0, 0.475, 0.525]
+  Achromatopsia: [0.299, 0.587, 0.114, 0.299, 0.587, 0.114, 0.299, 0.587, 0.114]
 
-**Logic**:
-1. Authenticate with Cognito
-2. Retrieve user profile from DynamoDB
-3. Update last login timestamp
-4. Return JWT tokens (access + refresh)
-
-#### 3.1.2 Progress Tracking Functions
-
-**Function**: `progress-save`
-```yaml
-Handler: functions/progress/save.handler
-Runtime: nodejs18.x
-Memory: 512MB
-Timeout: 15s
-Environment:
-  - DYNAMODB_PROGRESS_TABLE
-Triggers:
-  - API Gateway: POST /progress/save
-```
-
-**Logic**:
-1. Validate user authentication (JWT)
-2. Calculate empathy score from behavioral data
-3. Store session data in DynamoDB
-4. Update user's total empathy score
-5. Trigger leaderboard update (async)
-
-**Function**: `progress-get`
-```yaml
-Handler: functions/progress/get.handler
-Runtime: nodejs18.x
-Memory: 256MB
-Timeout: 5s
-Triggers:
-  - API Gateway: GET /progress/{userId}
-```
-
-**Logic**:
-1. Validate user authorization
-2. Query DynamoDB for user's progress
-3. Aggregate statistics (total time, scenarios completed)
-4. Return formatted progress data
-
-#### 3.1.3 Analytics Functions
-
-**Function**: `analytics-aggregate`
-```yaml
-Handler: functions/analytics/aggregate.handler
-Runtime: nodejs18.x
-Memory: 512MB
-Timeout: 30s
-Triggers:
-  - EventBridge: Daily at 00:00 UTC
-```
-
-**Logic**:
-1. Query all progress records from past 24 hours
-2. Calculate platform-wide metrics
-3. Update aggregated statistics table
-4. Generate daily report
-
-#### 3.1.4 Leaderboard Functions
-
-**Function**: `leaderboard-update`
-```yaml
-Handler: functions/leaderboard/update.handler
-Runtime: nodejs18.x
-Memory: 256MB
-Timeout: 10s
-Triggers:
-  - DynamoDB Stream: progress table
-```
-
-**Logic**:
-1. Receive progress update event
-2. Recalculate user's total score
-3. Update leaderboard table with new rank
-4. Maintain top 100 leaderboard
-
-### 3.2 API Gateway Design
-
-
-```yaml
-API Name: walkinmyshoes-api
-Type: REST API
-Stage: prod
-Base URL: https://{api-id}.execute-api.us-east-1.amazonaws.com/prod
-
-Endpoints:
-  # Authentication
-  POST /auth/signup
-    - Request: { email, password, name }
-    - Response: { userId, message }
-    - Auth: None
-    
-  POST /auth/login
-    - Request: { email, password }
-    - Response: { accessToken, refreshToken, user }
-    - Auth: None
-    
-  POST /auth/refresh
-    - Request: { refreshToken }
-    - Response: { accessToken }
-    - Auth: None
-  
-  # Progress Tracking
-  POST /progress/save
-    - Request: { sessionData, empathyScore, scenarioType }
-    - Response: { success, progressId }
-    - Auth: JWT (Cognito)
-    
-  GET /progress/{userId}
-    - Response: { sessions[], totalScore, completedScenarios[] }
-    - Auth: JWT (Cognito)
-  
-  # Analytics
-  GET /analytics/dashboard
-    - Response: { platformStats, userStats }
-    - Auth: JWT (Cognito)
-  
-  # Leaderboard
-  GET /leaderboard/top
-    - Query: ?limit=100
-    - Response: { rankings[] }
-    - Auth: None (anonymized data)
-
-Security:
-  - CORS: Enabled for CloudFront domain only
-  - Rate Limiting: 1000 requests/minute per user
-  - Request Validation: JSON schema validation
-  - Authorization: Cognito JWT verification
-```
-
-### 3.3 Error Handling Strategy
-
-```typescript
-// Standardized Error Response Format
-interface APIError {
-  statusCode: number;
-  errorCode: string;
-  message: string;
-  details?: any;
-  timestamp: string;
-}
-
-// Error Codes
-const ErrorCodes = {
-  // Authentication (1xxx)
-  INVALID_CREDENTIALS: '1001',
-  TOKEN_EXPIRED: '1002',
-  UNAUTHORIZED: '1003',
-  
-  // Validation (2xxx)
-  INVALID_INPUT: '2001',
-  MISSING_REQUIRED_FIELD: '2002',
-  
-  // Business Logic (3xxx)
-  SCENARIO_NOT_FOUND: '3001',
-  PROGRESS_SAVE_FAILED: '3002',
-  
-  // External Services (4xxx)
-  AI_API_ERROR: '4001',
-  DYNAMODB_ERROR: '4002',
-  
-  // System (5xxx)
-  INTERNAL_SERVER_ERROR: '5000',
-};
-
-// Retry Logic
-const retryConfig = {
-  maxRetries: 3,
-  backoffMultiplier: 2,
-  initialDelay: 1000, // ms
-};
+Applied via:
+  <feColorMatrix type="matrix" values="[matrix]" />
+  in SVG defs, applied as CSS filter to entire scene div
 ```
 
 ---
 
-## 4. Database Design
+## 3. Lambda Architecture (lambda/index.mjs)
 
-### 4.1 DynamoDB Table Schemas
+### 3.1 Module Structure
 
-#### Table: `walkinmyshoes-users`
+```javascript
+// ES Module (type: "module" in package.json)
+import { BedrockRuntimeClient, InvokeModelCommand }
+import { RekognitionClient, DetectLabelsCommand, DetectTextCommand }
 
-```typescript
-{
-  TableName: 'walkinmyshoes-users',
-  KeySchema: [
-    { AttributeName: 'userId', KeyType: 'HASH' } // Partition key
-  ],
-  AttributeDefinitions: [
-    { AttributeName: 'userId', AttributeType: 'S' },
-    { AttributeName: 'email', AttributeType: 'S' }
-  ],
-  GlobalSecondaryIndexes: [
-    {
-      IndexName: 'email-index',
-      KeySchema: [
-        { AttributeName: 'email', KeyType: 'HASH' }
-      ],
-      Projection: { ProjectionType: 'ALL' }
-    }
-  ],
-  BillingMode: 'PAY_PER_REQUEST',
-  StreamSpecification: {
-    StreamEnabled: false
-  }
-}
+const REGION        = "us-east-1"
+const BEDROCK_MODEL = "us.amazon.nova-lite-v1:0"  // Nova 2 Lite cross-region
+const MAX_IMG_BYTES = 4 * 1024 * 1024              // 4MB Rekognition limit
 
-// Item Structure
-{
-  userId: 'uuid-v4',
-  email: 'user@example.com',
-  name: 'John Doe',
-  createdAt: '2026-03-01T00:00:00Z',
-  lastLogin: '2026-03-01T12:00:00Z',
-  organizationId: 'org-123' | null,
-  role: 'user' | 'admin' | 'enterprise',
-  preferences: {
-    language: 'en',
-    notifications: true
-  }
+// CORS headers (all responses)
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "POST,OPTIONS"
 }
 ```
 
-#### Table: `walkinmyshoes-progress`
+### 3.2 Nova 2 Lite API Format
 
-
-```typescript
-{
-  TableName: 'walkinmyshoes-progress',
-  KeySchema: [
-    { AttributeName: 'userId', KeyType: 'HASH' },      // Partition key
-    { AttributeName: 'sessionId', KeyType: 'RANGE' }   // Sort key
-  ],
-  AttributeDefinitions: [
-    { AttributeName: 'userId', AttributeType: 'S' },
-    { AttributeName: 'sessionId', AttributeType: 'S' },
-    { AttributeName: 'completedAt', AttributeType: 'N' }
-  ],
-  LocalSecondaryIndexes: [
-    {
-      IndexName: 'completedAt-index',
-      KeySchema: [
-        { AttributeName: 'userId', KeyType: 'HASH' },
-        { AttributeName: 'completedAt', KeyType: 'RANGE' }
-      ],
-      Projection: { ProjectionType: 'ALL' }
-    }
-  ],
-  BillingMode: 'PAY_PER_REQUEST',
-  StreamSpecification: {
-    StreamEnabled: true,
-    StreamViewType: 'NEW_AND_OLD_IMAGES'
-  }
-}
-
-// Item Structure
-{
-  userId: 'uuid-v4',
-  sessionId: 'session-uuid-v4',
-  scenarioType: 'visual' | 'hearing' | 'motor' | 'colorblind',
-  completedAt: 1709251200000, // Unix timestamp
-  duration: 420, // seconds
-  empathyScore: 75,
-  tasksCompleted: 5,
-  errorsCount: 2,
-  chatHistory: [
-    {
-      role: 'user' | 'assistant',
-      content: 'string',
-      timestamp: 1709251200000
-    }
-  ],
-  assessmentScores: {
-    preScore: 45,
-    postScore: 82
+```javascript
+// CRITICAL: Nova uses different format than Claude
+// Wrong (Anthropic format): { anthropic_version, max_tokens, system: string, messages }
+// Correct (Nova format):
+body: JSON.stringify({
+  messages: messages.map(m => ({
+    role: m.role,
+    content: typeof m.content === "string"
+      ? [{ text: m.content }]   // ← Must be array, not string
+      : m.content,
+  })),
+  system: [{ text: systemPrompt }],  // ← Must be array
+  inferenceConfig: {
+    max_new_tokens: maxTokens,
+    temperature: 0.5,
   },
-  behaviorData: {
-    helpRequests: 3,
-    retryAttempts: 2,
-    frustrationEvents: 1
-  }
-}
+})
+
+// Response parsing (also different from Claude):
+// Claude: body.content[0].text
+// Nova:   body.output.message.content[0].text
+return (body.output?.message?.content?.[0]?.text ?? "").trim();
 ```
 
-#### Table: `walkinmyshoes-leaderboard`
+### 3.3 analyzeAccessibility Action
 
-```typescript
+```
+Input:  { action: 'analyzeAccessibility', imageBase64: string }
+Output: { result: '{"issues":[...],"overallComplianceScore":75}' }
+
+Pipeline:
+1. Decode base64 → Buffer
+2. Check size ≤ 4MB
+3. Promise.all([DetectLabels, DetectText])
+4. Build scene description:
+   - labels: "Door (97%, in: Architecture); Window (89%)..."
+   - visibleText: "EXIT, PUSH"
+   - boxes (top 12): "Door: [top=200, left=100, bottom=800, right=400]"
+5. Nova audit prompt:
+   - System: ADA inspector, JSON only, no markdown
+   - User: full scene description + audit checklist + JSON schema
+   - max_new_tokens: 2500
+6. Return JSON string
+
+Output JSON schema:
 {
-  TableName: 'walkinmyshoes-leaderboard',
-  KeySchema: [
-    { AttributeName: 'leaderboardId', KeyType: 'HASH' }
-  ],
-  AttributeDefinitions: [
-    { AttributeName: 'leaderboardId', AttributeType: 'S' },
-    { AttributeName: 'totalEmpathyScore', AttributeType: 'N' }
-  ],
-  GlobalSecondaryIndexes: [
-    {
-      IndexName: 'score-index',
-      KeySchema: [
-        { AttributeName: 'totalEmpathyScore', KeyType: 'HASH' }
-      ],
-      Projection: { ProjectionType: 'ALL' }
-    }
-  ],
-  BillingMode: 'PAY_PER_REQUEST'
-}
-
-// Item Structure
-{
-  leaderboardId: 'global',
-  userId: 'uuid-v4',
-  userName: 'Anonymous User 123', // Anonymized
-  totalEmpathyScore: 285,
-  scenariosCompleted: 4,
-  totalTimeSpent: 1680, // seconds
-  rank: 42,
-  updatedAt: '2026-03-01T12:00:00Z'
+  "issues": [{
+    "type": "DOORWAY",
+    "status": "NON_COMPLIANT",
+    "description": "Door opening appears <32 inches",
+    "recommendation": "Widen to ≥36 inches per ADA §404.2.3",
+    "costEstimate": "$500-$2000",
+    "coordinates": [200, 100, 800, 400]  // [ymin, xmin, ymax, xmax]
+  }],
+  "overallComplianceScore": 45
 }
 ```
 
-### 4.2 Data Access Patterns
+### 3.4 editImage Action (Synthesize Fix)
 
-**Pattern 1: User Login**
-```typescript
-// Query: Get user by email
-const params = {
-  TableName: 'walkinmyshoes-users',
-  IndexName: 'email-index',
-  KeyConditionExpression: 'email = :email',
-  ExpressionAttributeValues: { ':email': userEmail }
-};
+```
+Input:  { action: 'editImage', imageBase64: string, prompt: string }
+Output: { result: 'Markdown remediation report text' }
+
+Pipeline:
+1. Rekognition DetectLabels (25 labels, 65% confidence) → scene context
+2. Build remediation context: sceneLabels + user's issue description
+3. Nova contractor report prompt:
+   - 7 sections: Site Observation, ADA Violation, Remediation Spec,
+     Expected Outcome, Cost Breakdown, Code References, Priority & Timeline
+   - Costs in both ₹ and $
+   - References ADA 2010, WCAG 2.1, RPWD Act 2016, NBC 2016
+   - max_new_tokens: 2500
+4. Return raw report text (markdown formatted for frontend display)
 ```
 
-**Pattern 2: Save Progress**
-```typescript
-// Put: Create new session record
-const params = {
-  TableName: 'walkinmyshoes-progress',
-  Item: {
-    userId: 'uuid',
-    sessionId: 'session-uuid',
-    // ... other fields
-  }
-};
-```
+### 3.5 chat Action (AI Guide)
 
-**Pattern 3: Get User Progress**
-```typescript
-// Query: Get all sessions for user, sorted by date
-const params = {
-  TableName: 'walkinmyshoes-progress',
-  IndexName: 'completedAt-index',
-  KeyConditionExpression: 'userId = :userId',
-  ExpressionAttributeValues: { ':userId': userId },
-  ScanIndexForward: false, // Descending order
-  Limit: 50
-};
 ```
+Input:  { action: 'chat', context: string, messages: [{role, content}] }
+Output: { result: 'AI response text' }
 
-**Pattern 4: Update Leaderboard**
-```typescript
-// Update: Atomic increment of score
-const params = {
-  TableName: 'walkinmyshoes-leaderboard',
-  Key: { leaderboardId: 'global', userId: 'uuid' },
-  UpdateExpression: 'SET totalEmpathyScore = totalEmpathyScore + :score',
-  ExpressionAttributeValues: { ':score': newScore }
-};
+Pipeline:
+1. Validate messages is non-empty array
+2. Filter: only user/assistant roles, non-empty content strings
+3. Slice: last 20 messages (context window management)
+4. Shift: remove leading assistant messages (Nova requires user-first)
+5. Nova with accessibility expert system prompt:
+   - Context-aware (knows current simulation)
+   - Cites ADA §sections and WCAG SC X.X.X
+   - References RPWD Act 2016 for India
+   - India statistics ("2.68 crore people with disabilities")
+   - 2-4 sentence responses
+   - max_new_tokens: 700
+6. Return reply text, fallback if empty
 ```
 
 ---
 
-## 5. AI Integration Architecture
+## 4. AI Design Decisions
 
-### 5.1 AI Service Design
+### 4.1 Why Amazon Bedrock Nova 2 Lite
 
+| Factor | Decision |
+|---|---|
+| Model type | Amazon's own model — no third-party verification required |
+| Inference profile | `us.amazon.nova-lite-v1:0` — cross-region on-demand (no provisioning) |
+| Speed | 1.7s latency in playground for short prompts |
+| Cost | $0.00006/1K input tokens — extremely cost-effective |
+| Availability | Available immediately on valid AWS account |
+| Format | Different from Claude — requires array content format |
 
-```typescript
-// services/ai.ts
+### 4.2 Why Amazon Rekognition + Bedrock (Not Vision Model)
 
-class AIService {
-  private apiKey: string;
-  private baseURL: string;
-  
-  // Model Selection
-  private models = {
-    guide: 'language-model-fast',      // Fast responses for chat
-    analysis: 'vision-model-advanced',  // Deep analysis for AR
-    image: 'generative-model-image'     // Visual fix generation
-  };
-  
-  // AI Guide (Conversational Assistant)
-  async chatWithGuide(
-    messages: Message[],
-    context: SimulationContext
-  ): Promise<string> {
-    const systemPrompt = this.buildSystemPrompt(context);
-    
-    const response = await this.callAI({
-      model: this.models.guide,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages
-      ],
-      temperature: 0.7,
-      maxTokens: 500
-    });
-    
-    return response.content;
-  }
-  
-  // AR Accessibility Analysis
-  async analyzeAccessibility(
-    imageData: string,
-    detectedObjects: DetectedObject[]
-  ): Promise<AccessibilityReport> {
-    const prompt = this.buildAnalysisPrompt(detectedObjects);
-    
-    const response = await this.callAI({
-      model: this.models.analysis,
-      prompt,
-      image: imageData,
-      temperature: 0.3, // More deterministic for compliance
-      maxTokens: 2000
-    });
-    
-    return this.parseAccessibilityReport(response);
-  }
-  
-  // Visual Fix Generation
-  async generateVisualFix(
-    originalImage: string,
-    issue: AccessibilityIssue
-  ): Promise<string> {
-    const prompt = this.buildFixPrompt(issue);
-    
-    const response = await this.callAI({
-      model: this.models.image,
-      prompt,
-      image: originalImage,
-      temperature: 0.5
-    });
-    
-    return response.imageUrl; // Base64 or URL
-  }
-  
-  // Prompt Engineering
-  private buildSystemPrompt(context: SimulationContext): string {
-    return `You are an expert accessibility consultant and empathy guide.
-    
-Context:
-- User is experiencing: ${context.simulationType}
-- Current task: ${context.currentTask}
-- Progress: ${context.tasksCompleted}/${context.totalTasks}
+We intentionally split vision and language:
 
-Your role:
-1. Answer questions about accessibility standards (ADA, WCAG)
-2. Explain the disability experience empathetically
-3. Provide actionable recommendations
-4. Keep responses concise (2-3 sentences)
-5. Use encouraging, educational tone
+```
+Option A (rejected): Send image directly to multimodal LLM
+  Problems:
+  - Higher token cost (image tokens expensive)
+  - No structured bounding box data
+  - Can't do parallel processing
+  - Less precise spatial coordinates
 
-Guidelines:
-- Reference specific WCAG criteria when relevant
-- Share real-world statistics when helpful
-- Avoid medical jargon
-- Focus on solutions, not just problems`;
-  }
-  
-  private buildAnalysisPrompt(objects: DetectedObject[]): string {
-    return `Analyze this environment for accessibility compliance.
-
-Detected objects: ${JSON.stringify(objects)}
-
-Evaluate:
-1. Door widths (ADA: 32" minimum clear width)
-2. Ramp slopes (ADA: 1:12 ratio max, 4.76°)
-3. Button heights (ADA: 15"-48" range)
-4. Color contrast (WCAG: 4.5:1 for text)
-5. Tactile paving presence
-
-For each issue found, provide:
-- Specific violation
-- Current measurement vs. standard
-- Severity (critical/important/minor)
-- Remediation steps
-- Cost estimate (low/medium/high)
-
-Return JSON format.`;
-  }
-  
-  private buildFixPrompt(issue: AccessibilityIssue): string {
-    return `You are an architectural renderer. Generate a photorealistic visualization
-of this accessibility fix:
-
-Issue: ${issue.description}
-Current state: ${issue.currentMeasurement}
-Required: ${issue.requiredStandard}
-
-Instructions:
-1. Maintain original lighting, perspective, and textures
-2. Physically render the compliant solution (e.g., wider door, proper ramp)
-3. Ensure the fix looks professionally integrated
-4. Use realistic materials (concrete, metal, wood)
-5. Show clear dimensional improvements
-
-Generate a high-quality architectural visualization.`;
-  }
-  
-  // Rate Limiting & Retry Logic
-  private async callAI(params: any): Promise<any> {
-    const maxRetries = 3;
-    let attempt = 0;
-    
-    while (attempt < maxRetries) {
-      try {
-        const response = await fetch(`${this.baseURL}/models/${params.model}:generateContent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': this.apiKey
-          },
-          body: JSON.stringify(params)
-        });
-        
-        if (response.status === 429) {
-          // Rate limited - exponential backoff
-          await this.sleep(Math.pow(2, attempt) * 1000);
-          attempt++;
-          continue;
-        }
-        
-        if (!response.ok) {
-          throw new Error(`AI API error: ${response.statusText}`);
-        }
-        
-        return await response.json();
-        
-      } catch (error) {
-        if (attempt === maxRetries - 1) throw error;
-        attempt++;
-        await this.sleep(1000 * attempt);
-      }
-    }
-  }
-  
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-}
+Option B (chosen): Rekognition (vision) → Bedrock (reasoning)
+  Benefits:
+  - Rekognition gives exact bounding boxes (0-1 normalized coordinates)
+  - Parallel API calls (DetectLabels + DetectText simultaneously)
+  - Bedrock receives structured text → cheaper, faster, more accurate audit
+  - Two AWS services used = better hackathon score
+  - Rekognition free tier: 5,000 images/month
 ```
 
-### 5.2 AI Context Management
+### 4.3 Prompt Engineering Strategy
 
+**analyzeAccessibility prompt design:**
+- Role: "certified ADA 2010 + WCAG 2.1 accessibility inspector"
+- Hard constraint: "ONLY valid JSON, no markdown, no backticks"
+- Structured input: objects → text → bounding boxes (separate sections)
+- Explicit schema: full JSON template in prompt
+- Minimum 5 issues: enforced in prompt ("Every real physical space has multiple elements")
+- Coordinate guidance: normalize to 0-1000 space, min box 80×80
 
-```typescript
-// Context passed to AI for each simulation
-interface SimulationContext {
-  simulationType: 'visual' | 'hearing' | 'motor' | 'colorblind';
-  currentTask: string;
-  tasksCompleted: number;
-  totalTasks: number;
-  impairmentLevel: number; // 1-5
-  userProgress: {
-    errorsCount: number;
-    helpRequests: number;
-    timeElapsed: number;
-  };
-}
+**chat prompt design:**
+- Role: "AI Expert Guide in WalkInMyShoes platform"
+- Length constraint: "2-4 sentences unless explicitly asked for more"
+- Citation requirement: "ALWAYS cite exact ADA sections (§) or WCAG criteria"
+- India context: "Reference RPWD Act 2016 and NBC 2016"
+- Statistics: specific India data hardcoded into system prompt
+- Brand: "You are powered by Amazon Bedrock"
 
-// Conversation History Management
-class ConversationManager {
-  private maxHistoryLength = 20; // Keep last 20 messages
-  
-  addMessage(message: Message): void {
-    this.history.push(message);
-    if (this.history.length > this.maxHistoryLength) {
-      // Keep system prompt + recent messages
-      this.history = [
-        this.history[0], // System prompt
-        ...this.history.slice(-this.maxHistoryLength)
-      ];
-    }
-  }
-  
-  getContext(): Message[] {
-    return this.history;
-  }
-}
+---
+
+## 5. Security Architecture
+
+### 5.1 API Security
+
+```
+No API keys in frontend:
+  ✅ All AI calls → API Gateway → Lambda (server-side)
+  ✅ Bedrock + Rekognition credentials from IAM role (not env vars)
+  ✅ VITE_API_BASE_URL is public (API Gateway URL) — safe to expose
+  ✅ No secret keys in browser
+
+IAM Least Privilege:
+  Lambda role has ONLY:
+  - AmazonRekognitionFullAccess
+  - AmazonBedrockFullAccess
+  (No S3, DynamoDB, Cognito access from Lambda)
+
+CORS:
+  API Gateway: CORS enabled on /ai resource
+  Lambda: CORS_HEADERS added to every response
+  Origin: * (allows CloudFront + localhost dev)
+```
+
+### 5.2 Data Security
+
+```
+No PII stored in Lambda or Bedrock:
+  - Images processed in-memory only (not stored to S3)
+  - Chat messages not persisted (session-only)
+  - User data only in Cognito (email + display name)
+
+S3 Security:
+  - Bucket: public access BLOCKED
+  - Access: CloudFront Origin Access Control (OAC) only
+  - No direct S3 URLs exposed
+
+CloudFront Security:
+  - HTTPS only (HTTP → 301 redirect)
+  - TLS 1.2 minimum
+  - Security headers via CloudFront response headers policy
 ```
 
 ---
 
-## 6. Security Architecture
+## 6. Performance Architecture
 
-### 6.1 Authentication Flow
+### 6.1 Frontend Performance
 
 ```
-┌─────────┐                                    ┌──────────────┐
-│ Browser │                                    │ AWS Cognito  │
-└────┬────┘                                    └──────┬───────┘
-     │                                                │
-     │ 1. POST /auth/signup                          │
-     │   { email, password }                         │
-     ├──────────────────────────────────────────────>│
-     │                                                │
-     │ 2. Create user + send verification email      │
-     │<───────────────────────────────────────────────┤
-     │                                                │
-     │ 3. User clicks verification link              │
-     ├──────────────────────────────────────────────>│
-     │                                                │
-     │ 4. POST /auth/login                           │
-     │   { email, password }                         │
-     ├──────────────────────────────────────────────>│
-     │                                                │
-     │ 5. Return JWT tokens                          │
-     │   { accessToken, refreshToken, idToken }      │
-     │<───────────────────────────────────────────────┤
-     │                                                │
-     │ 6. Store tokens in memory (not localStorage)  │
-     │                                                │
-     │ 7. API requests with Authorization header     │
-     │   Authorization: Bearer <accessToken>         │
-     │                                                │
-     │ 8. Token expires after 1 hour                 │
-     │                                                │
-     │ 9. POST /auth/refresh                         │
-     │   { refreshToken }                            │
-     ├──────────────────────────────────────────────>│
-     │                                                │
-     │ 10. Return new accessToken                    │
-     │<───────────────────────────────────────────────┤
+Vite Build Optimizations:
+  - Code splitting: each route lazy-loaded
+  - Tree shaking: unused Three.js modules excluded
+  - Asset hashing: cache-busting on deploy
+  - Minification: Terser for JS, cssnano for CSS
+
+CloudFront Caching:
+  - JS/CSS: Cache-Control: public, max-age=31536000, immutable (1 year)
+  - index.html: no-cache (always fresh on deploy)
+  - Images: max-age=86400 (1 day)
+
+Three.js Optimizations:
+  - WebGL 2.0 when available
+  - Geometry disposal on scene unmount
+  - Texture resolution adapts to device pixel ratio
 ```
 
-### 6.2 API Security Layers
+### 6.2 Lambda Performance
 
-**Layer 1: CloudFront**
-- HTTPS enforcement (redirect HTTP → HTTPS)
-- Geographic restrictions (optional)
-- DDoS protection (AWS Shield Standard)
-
-**Layer 2: API Gateway**
-- CORS configuration (whitelist CloudFront domain)
-- Rate limiting (1000 req/min per user)
-- Request validation (JSON schema)
-- API keys for service-to-service calls
-
-**Layer 3: Lambda Authorizer**
-```typescript
-// Custom authorizer for JWT validation
-export const authorize = async (event: APIGatewayAuthorizerEvent) => {
-  const token = event.authorizationToken;
-  
-  try {
-    // Verify JWT with Cognito public keys
-    const decoded = await verifyToken(token);
-    
-    // Generate IAM policy
-    return {
-      principalId: decoded.sub,
-      policyDocument: {
-        Version: '2012-10-17',
-        Statement: [{
-          Action: 'execute-api:Invoke',
-          Effect: 'Allow',
-          Resource: event.methodArn
-        }]
-      },
-      context: {
-        userId: decoded.sub,
-        email: decoded.email
-      }
-    };
-  } catch (error) {
-    throw new Error('Unauthorized');
-  }
-};
 ```
+Cold Start Mitigation:
+  - 256MB memory (faster CPU allocation)
+  - ES Modules (faster than CommonJS for tree shaking)
+  - AWS SDK v3 (modular — only import what's needed)
+  - No VPC (VPC adds 1-3s cold start penalty)
 
-**Layer 4: Lambda Function**
-- Input validation
-- Business logic authorization
-- Data access control (user can only access own data)
+Parallel Processing:
+  - Rekognition DetectLabels + DetectText: Promise.all (saves ~1-2s)
 
-### 6.3 Secrets Management
-
-```typescript
-// AWS Systems Manager Parameter Store
-const getSecret = async (secretName: string): Promise<string> => {
-  const ssm = new AWS.SSM();
-  
-  const params = {
-    Name: secretName,
-    WithDecryption: true
-  };
-  
-  const result = await ssm.getParameter(params).promise();
-  return result.Parameter.Value;
-};
-
-// Usage in Lambda
-const aiApiKey = await getSecret('/walkinmyshoes/ai-api-key');
+Timeout Strategy:
+  - Lambda: 60 seconds
+  - Frontend fetch: 55 seconds (AbortController)
+  - Gap: 5 seconds for response serialization
 ```
-
-**Stored Secrets**:
-- `/walkinmyshoes/ai-api-key`: AI service API key
-- `/walkinmyshoes/jwt-secret`: JWT signing secret (if custom auth)
-- `/walkinmyshoes/db-encryption-key`: DynamoDB encryption key
-
-### 6.4 Data Encryption
-
-**At Rest**:
-- DynamoDB: Server-side encryption with AWS managed keys
-- S3: AES-256 encryption for uploaded assets
-- Parameter Store: Encrypted with KMS
-
-**In Transit**:
-- TLS 1.2+ for all connections
-- Certificate pinning for mobile apps (future)
 
 ---
 
 ## 7. Deployment Architecture
 
-### 7.1 Infrastructure as Code
+### 7.1 Deployment Pipeline
 
-**CloudFormation Stack: DynamoDB**
-```yaml
-# infrastructure/dynamodb.yml
-AWSTemplateFormatVersion: '2010-09-09'
-Description: DynamoDB tables for WalkInMyShoes
-
-Resources:
-  UsersTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: walkinmyshoes-users
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-        - AttributeName: email
-          AttributeType: S
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
-      GlobalSecondaryIndexes:
-        - IndexName: email-index
-          KeySchema:
-            - AttributeName: email
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-      Tags:
-        - Key: Project
-          Value: WalkInMyShoes
-        - Key: Environment
-          Value: Production
-
-  ProgressTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: walkinmyshoes-progress
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: userId
-          AttributeType: S
-        - AttributeName: sessionId
-          AttributeType: S
-        - AttributeName: completedAt
-          AttributeType: N
-      KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
-        - AttributeName: sessionId
-          KeyType: RANGE
-      LocalSecondaryIndexes:
-        - IndexName: completedAt-index
-          KeySchema:
-            - AttributeName: userId
-              KeyType: HASH
-            - AttributeName: completedAt
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
-      Tags:
-        - Key: Project
-          Value: WalkInMyShoes
-
-  LeaderboardTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: walkinmyshoes-leaderboard
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: leaderboardId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: leaderboardId
-          KeyType: HASH
-      Tags:
-        - Key: Project
-          Value: WalkInMyShoes
-
-Outputs:
-  UsersTableName:
-    Value: !Ref UsersTable
-    Export:
-      Name: WalkInMyShoes-UsersTable
-  
-  ProgressTableName:
-    Value: !Ref ProgressTable
-    Export:
-      Name: WalkInMyShoes-ProgressTable
-  
-  LeaderboardTableName:
-    Value: !Ref LeaderboardTable
-    Export:
-      Name: WalkInMyShoes-LeaderboardTable
+```
+Developer Machine
+      │
+      ├── npm run build
+      │     Vite compiles TS → JS, optimizes, hashes assets
+      │     Output: ./dist/
+      │
+      ├── aws s3 sync dist/ s3://walkinmyshoes-frontend-2026
+      │     --delete: removes old files
+      │     --exclude "index.html": separate upload with different cache
+      │     Cache: public,max-age=31536000,immutable for assets
+      │
+      ├── aws s3 cp dist/index.html ...
+      │     Cache: no-cache,no-store,must-revalidate
+      │
+      └── aws cloudfront create-invalidation --paths "/*"
+            Purges all edge cache in ~60 seconds
+            Users get new version on next request
 ```
 
-**Serverless Framework: Lambda Functions**
-```yaml
-# backend/serverless.yml
-service: walkinmyshoes-backend
+### 7.2 Lambda Deployment
 
-provider:
-  name: aws
-  runtime: nodejs18.x
-  region: us-east-1
-  stage: ${opt:stage, 'prod'}
-  memorySize: 512
-  timeout: 30
-  environment:
-    DYNAMODB_USERS_TABLE: ${cf:walkinmyshoes-dynamodb.UsersTableName}
-    DYNAMODB_PROGRESS_TABLE: ${cf:walkinmyshoes-dynamodb.ProgressTableName}
-    DYNAMODB_LEADERBOARD_TABLE: ${cf:walkinmyshoes-dynamodb.LeaderboardTableName}
-    COGNITO_USER_POOL_ID: ${cf:walkinmyshoes-cognito.UserPoolId}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_USERS_TABLE}
-        - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_PROGRESS_TABLE}
-        - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_LEADERBOARD_TABLE}
-    - Effect: Allow
-      Action:
-        - ssm:GetParameter
-      Resource:
-        - arn:aws:ssm:${self:provider.region}:*:parameter/walkinmyshoes/*
+```
+Lambda Updates (manual via AWS Console):
+  1. Open lambda/index.mjs in VS Code
+  2. Copy entire contents
+  3. AWS Console → Lambda → walkinmyshoes-ai → Code tab
+  4. Select all → paste → Deploy
 
-functions:
-  auth-signup:
-    handler: functions/auth/signup.handler
-    events:
-      - http:
-          path: auth/signup
-          method: post
-          cors: true
-  
-  auth-login:
-    handler: functions/auth/login.handler
-    events:
-      - http:
-          path: auth/login
-          method: post
-          cors: true
-  
-  progress-save:
-    handler: functions/progress/save.handler
-    events:
-      - http:
-          path: progress/save
-          method: post
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: ${cf:walkinmyshoes-cognito.UserPoolAuthorizerId}
-  
-  progress-get:
-    handler: functions/progress/get.handler
-    events:
-      - http:
-          path: progress/{userId}
-          method: get
-          cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: ${cf:walkinmyshoes-cognito.UserPoolAuthorizerId}
-  
-  leaderboard-update:
-    handler: functions/leaderboard/update.handler
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt: [ProgressTable, StreamArn]
-          batchSize: 10
-          startingPosition: LATEST
-
-plugins:
-  - serverless-offline
-  - serverless-plugin-typescript
+No CI/CD yet (Phase 2 roadmap):
+  Future: GitHub Actions → automated Lambda deploy on push to main
 ```
 
-### 7.2 Deployment Pipeline
+### 7.3 Environment Management
 
+```
+.env (local development):
+  VITE_API_BASE_URL=https://x5rbnqm2v4.execute-api.us-east-1.amazonaws.com/dev
+  VITE_COGNITO_*=[values]
+  S3_BUCKET=walkinmyshoes-frontend-2026
+  CLOUDFRONT_ID=E2FKI267871EMW
 
-```bash
-# Deployment Steps
-
-# 1. Deploy Infrastructure
-aws cloudformation deploy \
-  --template-file infrastructure/dynamodb.yml \
-  --stack-name walkinmyshoes-dynamodb \
-  --capabilities CAPABILITY_NAMED_IAM
-
-aws cloudformation deploy \
-  --template-file infrastructure/cognito.yml \
-  --stack-name walkinmyshoes-cognito \
-  --capabilities CAPABILITY_NAMED_IAM
-
-aws cloudformation deploy \
-  --template-file infrastructure/s3-cloudfront.yml \
-  --stack-name walkinmyshoes-s3-cloudfront \
-  --capabilities CAPABILITY_NAMED_IAM
-
-# 2. Store Secrets
-aws ssm put-parameter \
-  --name "/walkinmyshoes/ai-api-key" \
-  --value "YOUR_API_KEY" \
-  --type SecureString
-
-# 3. Deploy Backend
-cd backend
-npm install
-npx serverless deploy --stage prod
-
-# 4. Build & Deploy Frontend
-cd ../frontend
-npm install
-npm run build
-./scripts/deploy-frontend.sh
+Production (CloudFront):
+  Same .env values baked into Vite build at compile time
+  (import.meta.env.VITE_* inlined during npm run build)
+  
+  Critical: index.html is served fresh (no-cache) so env changes
+  take effect immediately without cache invalidation
 ```
 
 ---
 
 ## 8. Monitoring & Observability
 
-### 8.1 CloudWatch Metrics
+### 8.1 CloudWatch (Automatic)
 
-**Lambda Metrics**:
-- Invocations
-- Duration (P50, P95, P99)
-- Errors
-- Throttles
-- Concurrent executions
+```
+Lambda Logs:
+  - Log group: /aws/lambda/walkinmyshoes-ai
+  - Logs: console.error("[Lambda Error]", action, err)
+  - Retention: 14 days default
 
-**API Gateway Metrics**:
-- Request count
-- Latency (integration, overall)
-- 4XX errors
-- 5XX errors
+API Gateway Logs:
+  - Request/response metrics
+  - 4xx/5xx error rates
+  - Latency percentiles
 
-**DynamoDB Metrics**:
-- Read/write capacity units consumed
-- Throttled requests
-- System errors
-
-**Custom Application Metrics**:
-```typescript
-// Log custom metrics
-const logMetric = (metricName: string, value: number, unit: string) => {
-  console.log(JSON.stringify({
-    metricName,
-    value,
-    unit,
-    timestamp: Date.now()
-  }));
-};
-
-// Usage
-logMetric('EmpathyScoreCalculated', empathyScore, 'Count');
-logMetric('SimulationDuration', duration, 'Seconds');
+CloudFront Metrics:
+  - Request count, cache hit rate, error rate
+  - Bandwidth consumed
+  - Available in CloudFront console
 ```
 
-### 8.2 Logging Strategy
+### 8.2 Frontend Error Tracking
 
-**Structured Logging**:
-```typescript
-const logger = {
-  info: (message: string, context: any) => {
-    console.log(JSON.stringify({
-      level: 'INFO',
-      message,
-      context,
-      timestamp: new Date().toISOString()
-    }));
-  },
-  error: (message: string, error: Error, context: any) => {
-    console.error(JSON.stringify({
-      level: 'ERROR',
-      message,
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      },
-      context,
-      timestamp: new Date().toISOString()
-    }));
-  }
-};
 ```
+React Error Boundaries:
+  - All simulation scenes wrapped in ErrorBoundary.tsx
+  - Catches render errors, shows fallback UI
+  - Logs to console (Phase 2: send to CloudWatch via API)
 
-### 8.3 Alerting
-
-**CloudWatch Alarms**:
-- Lambda error rate >5% (5 min period)
-- API Gateway 5XX errors >10 (1 min period)
-- DynamoDB throttled requests >0
-- CloudFront 5XX error rate >1%
-
-**SNS Topics**:
-- Critical alerts → Email + SMS
-- Warning alerts → Email only
-
----
-
-## 9. Performance Optimization
-
-### 9.1 Frontend Optimization
-
-**Code Splitting**:
-```typescript
-// Route-based splitting
-const routes = [
-  {
-    path: '/simulation/:type',
-    component: lazy(() => import('./components/SimulationView'))
-  }
-];
-
-// Component-based splitting
-const HeavyComponent = lazy(() => import('./components/HeavyComponent'));
-```
-
-**Asset Optimization**:
-- Images: WebP format, lazy loading
-- 3D Models: GLB with Draco compression
-- Fonts: WOFF2 format, subset to used characters
-- CSS: Purge unused Tailwind classes
-
-**Caching Strategy**:
-```typescript
-// Service Worker (future)
-const CACHE_NAME = 'walkinmyshoes-v1';
-const urlsToCache = [
-  '/',
-  '/static/js/main.js',
-  '/static/css/main.css'
-];
-```
-
-### 9.2 Backend Optimization
-
-**Lambda Cold Start Mitigation**:
-- Keep functions warm with scheduled pings
-- Minimize dependencies
-- Use Lambda layers for shared code
-
-**DynamoDB Optimization**:
-- Use batch operations where possible
-- Implement caching layer (ElastiCache - future)
-- Optimize query patterns with proper indexes
-
-**API Gateway Caching**:
-```yaml
-# Enable caching for GET endpoints
-- http:
-    path: leaderboard/top
-    method: get
-    caching:
-      enabled: true
-      ttlInSeconds: 300
+Service Error Handling:
+  - All fetch calls in try/catch
+  - User-visible error messages (not stack traces)
+  - Retry logic in callLambda (bedrock.ts)
 ```
 
 ---
 
-## 10. Cost Optimization
+## 9. Cost Architecture
 
-### 10.1 Estimated Monthly Costs (10K MAU)
+### 9.1 AWS Pricing Model
 
-| Service | Usage | Cost |
-|---------|-------|------|
-| S3 | 10GB storage, 100K requests | $3 |
-| CloudFront | 100GB transfer, 1M requests | $15 |
-| Lambda | 1M invocations, 512MB, 3s avg | $5 |
-| API Gateway | 1M requests | $3.50 |
-| DynamoDB | 10M reads, 1M writes | $8 |
-| Cognito | 10K MAU | Free |
-| **Total** | | **~$35/month** |
-
-### 10.2 Cost Optimization Strategies
-
-- Use CloudFront caching aggressively (reduce origin requests)
-- Implement DynamoDB on-demand pricing (pay per request)
-- Optimize Lambda memory allocation (right-sizing)
-- Use S3 Intelligent-Tiering for infrequently accessed assets
-- Set up AWS Budgets with alerts at $50, $75, $100
-
----
-
-## 11. Disaster Recovery
-
-### 11.1 Backup Strategy
-
-**DynamoDB**:
-- Point-in-time recovery enabled
-- Daily automated backups (retained 35 days)
-- Cross-region replication (future)
-
-**S3**:
-- Versioning enabled
-- Cross-region replication (future)
-- Lifecycle policies for old versions
-
-### 11.2 Recovery Procedures
-
-**RTO (Recovery Time Objective)**: 4 hours  
-**RPO (Recovery Point Objective)**: 1 hour
-
-**Disaster Scenarios**:
-1. **Lambda function failure**: Auto-retry + rollback deployment
-2. **DynamoDB table corruption**: Restore from point-in-time backup
-3. **S3 bucket deletion**: Restore from versioning
-4. **Region outage**: Failover to secondary region (future)
-
----
-
-## 12. Compliance & Governance
-
-### 12.1 Data Retention
-
-- User accounts: Retained until deletion request
-- Progress data: Retained 2 years
-- Audit logs: Retained 90 days
-- Backups: Retained 35 days
-
-### 12.2 GDPR Compliance
-
-- Right to access: API endpoint for data export
-- Right to deletion: Cascade delete across all tables
-- Data portability: JSON export format
-- Consent management: Stored in user preferences
-
----
-
-## 13. Testing Strategy
-
-### 13.1 Unit Testing
-
-```typescript
-// Example: Empathy score calculation test
-describe('calculateEmpathyScore', () => {
-  it('should calculate score based on behavioral data', () => {
-    const behaviorData = {
-      timeSpent: 600,
-      retries: 3,
-      helpClicks: 2,
-      frustrations: 1
-    };
-    
-    const score = calculateEmpathyScore(behaviorData);
-    expect(score).toBeGreaterThan(0);
-    expect(score).toBeLessThanOrEqual(100);
-  });
-});
 ```
+Amazon CloudFront:
+  Free tier: 1TB data transfer + 10M requests/month
+  Beyond: $0.0085/GB (India edge)
 
-### 13.2 Integration Testing
+Amazon S3:
+  Free tier: 5GB storage + 20K GET requests
+  Beyond: $0.023/GB storage
 
-```typescript
-// Example: API integration test
-describe('POST /progress/save', () => {
-  it('should save progress and return success', async () => {
-    const response = await request(app)
-      .post('/progress/save')
-      .set('Authorization', `Bearer ${validToken}`)
-      .send(mockProgressData);
-    
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-  });
-});
-```
+AWS Lambda:
+  Free tier: 1M requests + 400,000 GB-seconds/month
+  Beyond: $0.20/1M requests + $0.0000166667/GB-second
+  walkinmyshoes-ai: 256MB × 30s avg = 7.68 GB-seconds/request
 
-### 13.3 Load Testing
+Amazon Rekognition:
+  Free tier: 5,000 images/month (first 12 months)
+  Beyond: $0.001/image (DetectLabels) + $0.001/image (DetectText)
+  Per scan: ~$0.002
 
-```bash
-# Artillery load test
-artillery run load-test.yml
+Amazon Bedrock (Nova 2 Lite):
+  Input: $0.00006/1K tokens
+  Output: $0.00024/1K tokens
+  Per audit (~2000 input, 500 output): ~$0.000240
+  Per chat (~500 input, 150 output): ~$0.000066
 
-# load-test.yml
-config:
-  target: 'https://api.walkinmyshoes.app'
-  phases:
-    - duration: 60
-      arrivalRate: 10
-      name: "Warm up"
-    - duration: 300
-      arrivalRate: 100
-      name: "Sustained load"
-scenarios:
-  - flow:
-      - post:
-          url: "/auth/login"
-          json:
-            email: "test@example.com"
-            password: "password123"
+Amazon API Gateway:
+  Free tier: 1M API calls/month
+  Beyond: $3.50/million calls
+
+Amazon Cognito:
+  Free tier: 50,000 MAU
+  Beyond: $0.0055/MAU
+
+Total per 1,000 AR scans: ~$2.40 (Rekognition) + ~$0.24 (Bedrock) = ~$2.64
 ```
 
 ---
 
-## 14. Future Architecture Enhancements
+## 10. Technology Decision Log
 
-### Phase 2 (Q2 2026)
-- **Redis Cache**: ElastiCache for session management
-- **SQS Queues**: Async processing for heavy operations
-- **Step Functions**: Orchestrate complex workflows
-
-### Phase 3 (Q3 2026)
-- **Multi-Region**: Active-active deployment
-- **GraphQL API**: Replace REST with AppSync
-- **Real-time Features**: WebSocket support via API Gateway
-
-### Phase 4 (Q4 2026)
-- **ML Pipeline**: SageMaker for empathy prediction
-- **Data Lake**: S3 + Athena for analytics
-- **CDN Optimization**: Lambda@Edge for personalization
+| Decision | Options Considered | Chosen | Reason |
+|---|---|---|---|
+| AI Model | Claude 3 Haiku, Titan, Nova 2 Lite | **Nova 2 Lite** | No Anthropic verification needed, Amazon's own model, instant access |
+| Vision AI | Multimodal LLM, Rekognition | **Rekognition** | Bounding boxes, parallel calls, free tier, structured output |
+| Frontend | Next.js, Remix, React | **React + Vite** | Already implemented, fast builds, WebXR compatibility |
+| Hosting | Amplify, EC2, S3+CloudFront | **S3 + CloudFront** | Zero server management, global CDN, lowest cost |
+| Auth | Custom JWT, Firebase, Cognito | **Cognito** | Native AWS, hosted UI, free tier 50K MAU |
+| 3D Engine | A-Frame, Babylon.js, Three.js | **Three.js** | Maximum control, WebXR native support, large ecosystem |
+| API | GraphQL, WebSocket, REST | **REST (API Gateway)** | Simple, well-understood, Lambda proxy straightforward |
+| Model API format | Anthropic format | **Nova format** | Nova requires array content `[{text}]`, not string |
 
 ---
 
-## 15. Architecture Decision Records (ADRs)
-
-### ADR-001: Serverless Architecture
-**Decision**: Use AWS Lambda instead of EC2/ECS  
-**Rationale**: Lower operational overhead, auto-scaling, pay-per-use  
-**Consequences**: Cold start latency, vendor lock-in
-
-### ADR-002: DynamoDB over RDS
-**Decision**: Use DynamoDB instead of PostgreSQL  
-**Rationale**: Better scalability, lower cost, serverless integration  
-**Consequences**: Limited query flexibility, eventual consistency
-
-### ADR-003: Advanced AI Models
-**Decision**: Use state-of-the-art language and vision models for AI features  
-**Rationale**: Best-in-class multimodal capabilities, competitive pricing, AWS compatibility  
-**Consequences**: Vendor flexibility, potential API changes
-
-### ADR-004: React Three Fiber over A-Frame
-**Decision**: Use React Three Fiber instead of A-Frame  
-**Rationale**: Better React integration, more control, active community  
-**Consequences**: Steeper learning curve, more boilerplate
-
----
-
-## 16. Appendices
-
-### Appendix A: Environment Variables
-
-```bash
-# Frontend (.env)
-VITE_API_BASE_URL=https://api.walkinmyshoes.app/prod
-VITE_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
-VITE_COGNITO_APP_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
-VITE_COGNITO_IDENTITY_POOL_ID=us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-VITE_AWS_REGION=us-east-1
-VITE_CLOUDFRONT_URL=https://d1234567890.cloudfront.net
-VITE_AI_API_KEY=<stored-in-parameter-store>
-
-# Backend (serverless.yml environment)
-DYNAMODB_USERS_TABLE=walkinmyshoes-users
-DYNAMODB_PROGRESS_TABLE=walkinmyshoes-progress
-DYNAMODB_LEADERBOARD_TABLE=walkinmyshoes-leaderboard
-COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
-AWS_REGION=us-east-1
-```
-
-### Appendix B: API Endpoints Reference
-
-```
-Base URL: https://{api-id}.execute-api.us-east-1.amazonaws.com/prod
-
-Authentication:
-  POST   /auth/signup
-  POST   /auth/login
-  POST   /auth/refresh
-  POST   /auth/logout
-
-Progress:
-  POST   /progress/save
-  GET    /progress/{userId}
-  GET    /progress/{userId}/summary
-
-Analytics:
-  GET    /analytics/dashboard
-  GET    /analytics/platform-stats
-
-Leaderboard:
-  GET    /leaderboard/top?limit=100
-  GET    /leaderboard/user/{userId}
-```
-
-### Appendix C: Database Indexes
-
-```
-walkinmyshoes-users:
-  - Primary: userId (HASH)
-  - GSI: email-index (email HASH)
-
-walkinmyshoes-progress:
-  - Primary: userId (HASH), sessionId (RANGE)
-  - LSI: completedAt-index (userId HASH, completedAt RANGE)
-
-walkinmyshoes-leaderboard:
-  - Primary: leaderboardId (HASH)
-  - GSI: score-index (totalEmpathyScore HASH)
-```
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: March 1, 2026  
-**Next Review**: April 1, 2026  
-**Approved By**: Technical Architecture Team  
-**Status**: Production Ready
+**Document Owner**: Kalim Sayyed
+**Last Updated**: March 7, 2026
+**Version**: 2.0 — Bedrock Edition
+**Status**: Production Live — https://d2d1ibzdtgm1nq.cloudfront.net

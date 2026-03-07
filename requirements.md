@@ -1,12 +1,11 @@
-# WalkInMyShoes - Requirements Specification
+# WalkInMyShoes — Requirements Specification
 
-## Document Information
-
-**Project**: WalkInMyShoes - Immersive Disability Empathy & Accessibility Training Platform  
-**Version**: 1.0  
-**Date**: March 1, 2026  
-**Status**: Production Ready (Phase 1 Complete)  
-**Target Deployment**: AWS Cloud Infrastructure
+**Project**: WalkInMyShoes — Immersive Disability Empathy & Accessibility Training Platform
+**Version**: 2.0 (Bedrock Edition)
+**Date**: March 7, 2026
+**Status**: Production — Live on AWS CloudFront
+**Hackathon**: AWS AI for Bharat 2026
+**Live URL**: https://d2d1ibzdtgm1nq.cloudfront.net
 
 ---
 
@@ -14,37 +13,38 @@
 
 ### 1.1 Business Objectives
 
-**Primary Goal**: Create an immersive, AI-powered WebXR platform that builds empathy for people with disabilities while teaching accessibility best practices through experiential learning.
+**Primary Goal**: Create an immersive, AI-powered WebXR platform that builds genuine empathy for people with disabilities while providing affordable, AI-powered ADA/RPWD Act 2016 compliance auditing for Indian buildings and infrastructure.
+
+**Core Problem Statements**:
+- 2.68 crore Indians live with disabilities (Census 2011) but <5% of buildings comply with RPWD Act 2016
+- Traditional accessibility training has only 20% retention vs 90% for experiential learning
+- Professional accessibility audits cost ₹50,000–₹2,00,000 — unaffordable for most businesses
+- Empathy for disability cannot be taught through lectures alone — it must be experienced
 
 **Success Metrics**:
-- Achieve 85%+ simulation completion rate
-- Demonstrate 40-60 point empathy score improvement
-- Generate $2,500+ average value per AR audit
-- Maintain <3 second page load time globally
-- Support 10,000+ concurrent users on AWS infrastructure
+- 85%+ simulation completion rate
+- 40–60 point empathy score improvement per user
+- AR audit scan completes in <10 seconds
+- AI Guide responds in <5 seconds for 90% of queries
+- Page load <3 seconds globally via CloudFront
+- Zero recurring AI API cost (AWS Bedrock pay-per-use)
 
-### 1.2 Target Audience
+### 1.2 Target Users
 
-**Primary Users**:
-- Corporate DEI training departments
-- Healthcare education institutions
-- Architecture and urban planning firms
-- Government compliance officers
-- Accessibility advocates and consultants
+**Primary Personas**:
 
-**User Personas**:
+1. **Corporate DEI Manager** — Needs scalable, measurable empathy training for 500+ employees
+2. **Building Owner / Architect** — Needs affordable RPWD Act 2016 compliance audit without hiring consultants
+3. **Medical Educator** — Needs empathy training for healthcare students treating patients with disabilities
+4. **Government Compliance Officer** — Needs auditing tool for public infrastructure assessment
+5. **Accessibility Consultant** — Needs professional-grade AR auditing with detailed contractor reports
 
-1. **Sarah - Corporate DEI Manager**: Needs scalable training for 500+ employees with measurable outcomes
-2. **Dr. Chen - Medical Educator**: Requires empathy training for medical students treating diverse patients
-3. **Marcus - Architect**: Seeks compliance auditing tools and accessible design education
-4. **Jamie - Accessibility Consultant**: Needs professional-grade AR auditing with detailed reports
+### 1.3 Market Context
 
-### 1.3 Market Requirements
-
-**Market Size**: $2B accessibility training market (TAM)  
-**Business Model**: B2B SaaS at $50/user/year  
-**Competitive Advantage**: Only platform combining VR empathy simulations with AR compliance auditing  
-**Social Impact**: Aligns with UN SDG 10 (Reducing Inequalities)
+- **TAM**: ₹16,000 crore accessibility training and compliance market (India + global)
+- **RPWD Act 2016**: Mandates accessibility in all public buildings — enforcement is increasing
+- **SDG 10**: Aligns with UN Sustainable Development Goal — Reducing Inequalities
+- **Competitive Advantage**: Only platform combining VR empathy simulation + AI-powered AR auditing on AWS
 
 ---
 
@@ -52,655 +52,437 @@
 
 ### 2.1 VR Simulation Scenarios
 
-#### 2.1.1 Visual Impairment Journey
+#### FR-2.1.1 Visual Impairment Simulation
 
-**User Story**: As a user, I want to experience progressive vision loss while navigating a virtual city so that I understand the challenges faced by people with visual impairments.
-
-**Acceptance Criteria**:
-
-- AC 2.1.1.1: System MUST provide 5 progressive vision loss stages (mild blur → complete blindness)
-- AC 2.1.1.2: Each stage MUST accurately simulate clinical conditions (glaucoma, macular degeneration, cataracts)
-- AC 2.1.1.3: Environment MUST include 3D city block with buildings, crosswalks, and park areas
-- AC 2.1.1.4: System MUST present 3-5 interactive tasks (read signs, cross street, find entrance)
-- AC 2.1.1.5: Visual filters MUST apply in real-time with smooth transitions (1000ms CSS transitions)
-- AC 2.1.1.6: System MUST track task completion time and error rates
-- AC 2.1.1.7: Debrief screen MUST display statistics and WCAG color contrast guidelines
-- AC 2.1.1.8: Experience MUST complete in 5-7 minutes
-
-**Priority**: P0 (Critical)  
-**Status**: ✅ Implemented
-
-#### 2.1.2 Hearing Loss Simulation
-
-**User Story**: As a user, I want to participate in a virtual classroom with hearing impairment so that I understand communication barriers faced by deaf and hard-of-hearing individuals.
+**Description**: Users experience progressive vision loss while navigating a virtual environment.
 
 **Acceptance Criteria**:
-- AC 2.1.2.1: System MUST simulate frequency loss, volume reduction, and tinnitus
-- AC 2.1.2.2: Environment MUST include classroom with 5 NPCs and ambient noise
-- AC 2.1.2.3: System MUST provide toggle for captions to demonstrate accessibility impact
+- AC-1: MUST provide 5 progressive vision stages (mild blur → severe → complete)
+- AC-2: MUST accurately simulate glaucoma, macular degeneration, cataracts using CSS/SVG filters
+- AC-3: Environment MUST include 3D space with buildings, pathways, and obstacles
+- AC-4: MUST include 3–5 interactive navigation tasks that reveal barriers
+- AC-5: Visual filters MUST apply in real-time with smooth transitions
+- AC-6: MUST track task completion time and error rates for empathy scoring
+- AC-7: Debrief MUST cite WCAG 2.1 color contrast standards and India statistics
+- AC-8: AI Guide MUST be available during simulation for real-time questions
+- **Status**: ✅ Implemented
 
-- AC 2.1.2.4: System MUST track comprehension differences with/without captions
-- AC 2.1.2.5: Audio filters MUST apply using Web Audio API
-- AC 2.1.2.6: System MUST test multi-modal alerts (audio-only vs. audio+visual)
-- AC 2.1.2.7: Debrief MUST include statistics on 466M people with hearing loss
-- AC 2.1.2.8: Experience MUST complete in 5-7 minutes
+#### FR-2.1.2 Hearing Loss Simulation
 
-**Priority**: P0 (Critical)  
-**Status**: ✅ Implemented
-
-#### 2.1.3 Motor Disability Navigation
-
-**User Story**: As a user, I want to navigate a building using wheelchair controls so that I understand architectural barriers faced by people with mobility impairments.
+**Description**: Users experience frequency loss, tinnitus, and communication barriers in a virtual environment.
 
 **Acceptance Criteria**:
-- AC 2.1.3.1: System MUST simulate realistic wheelchair physics (speed, turning radius, collision)
-- AC 2.1.3.2: Environment MUST include two-floor building with intentional barriers
-- AC 2.1.3.3: System MUST restrict controls (no strafing, limited speed)
-- AC 2.1.3.4: System MUST implement fatigue mechanics for heavy doors
-- AC 2.1.3.5: Environment MUST include accessible and inaccessible routes
-- AC 2.1.3.6: System MUST track time comparison vs. able-bodied mode (3-5x longer)
-- AC 2.1.3.7: System MUST include procedural trees and realistic building models
+- AC-1: MUST simulate frequency-specific hearing loss using Web Audio API
+- AC-2: MUST demonstrate tinnitus (ringing), muffled audio, directional confusion
+- AC-3: MUST include toggle for captions to show accessibility impact of captioning
+- AC-4: MUST demonstrate multi-modal alert testing (audio-only vs audio+visual)
+- AC-5: Debrief MUST reference 466M people worldwide with hearing loss
+- AC-6: AI Guide MUST explain WCAG 2.1 SC 1.2 (Captions) and SC 1.4.2 (Audio Control)
+- **Status**: ✅ Implemented
 
-- AC 2.1.3.8: NPCs MUST follow dynamic patrol paths with smooth animations
-- AC 2.1.3.9: Debrief MUST explain ADA door width, ramp slope, and button height standards
-- AC 2.1.3.10: Experience MUST complete in 5-7 minutes
+#### FR-2.1.3 Motor Disability Navigation
 
-**Priority**: P0 (Critical)  
-**Status**: ✅ Implemented
-
-#### 2.1.4 Color Blindness Experience
-
-**User Story**: As a user, I want to experience different types of color vision deficiency in a vibrant environment so that I understand design challenges for colorblind individuals.
+**Description**: Users navigate a building with wheelchair physics and realistic architectural barriers.
 
 **Acceptance Criteria**:
-- AC 2.1.4.1: System MUST support 4 color vision types (Protanopia, Deuteranopia, Tritanopia, Achromatopsia)
-- AC 2.1.4.2: System MUST apply scientifically accurate color matrices via SVG filters
-- AC 2.1.4.3: Environment MUST be vibrant (marketplace/gallery) to demonstrate color dependency
-- AC 2.1.4.4: System MUST provide clinical profile selection UI
-- AC 2.1.4.5: Filters MUST apply in real-time with smooth transitions
-- AC 2.1.4.6: System MUST include tasks that rely on color differentiation
-- AC 2.1.4.7: Debrief MUST explain WCAG color contrast requirements
-- AC 2.1.4.8: Experience MUST complete in 5-7 minutes
+- AC-1: MUST simulate realistic wheelchair constraints (speed, turning radius, no strafing)
+- AC-2: Environment MUST include architectural barriers (narrow doors, steps, no ramps)
+- AC-3: MUST implement fatigue mechanics for push-heavy obstacles
+- AC-4: MUST include both accessible and inaccessible routes for comparison
+- AC-5: MUST track time comparison vs unrestricted navigation (target: 3–5× longer)
+- AC-6: Debrief MUST explain ADA §404 (door width ≥32"), §405 (ramp ≤1:12), §308 (reach range 15–48" AFF)
+- AC-7: MUST reference RPWD Act 2016 building access provisions
+- **Status**: ✅ Implemented
 
-**Priority**: P0 (Critical)  
-**Status**: ✅ Implemented
+#### FR-2.1.4 Color Blindness Experience
 
-### 2.2 AI Expert Guide
-
-
-**User Story**: As a user, I want to ask questions about accessibility and my simulation experience in real-time so that I can deepen my understanding while immersed.
+**Description**: Users experience 4 types of color vision deficiency in a vibrant, color-dependent environment.
 
 **Acceptance Criteria**:
-- AC 2.2.1: System MUST provide persistent, collapsible AI chat panel in all simulations
-- AC 2.2.2: AI MUST be context-aware (knows which simulation user is in)
-- AC 2.2.3: AI MUST answer questions about ADA, WCAG, and disability experiences
-- AC 2.2.4: System MUST maintain conversation history throughout session
-- AC 2.2.6: Chat interface MUST support markdown formatting
-- AC 2.2.7: System MUST provide empathetic, educational tone
-- AC 2.2.8: Response time MUST be <3 seconds for 90% of queries
-- AC 2.2.9: AI guide MUST be integrated into AR Auditor view
-- AC 2.2.10: System MUST store chat history in application state
+- AC-1: MUST support Protanopia, Deuteranopia, Tritanopia, and Achromatopsia
+- AC-2: Color matrices MUST be scientifically accurate (IEC/ISO color vision standards)
+- AC-3: Filters MUST apply in real-time via SVG filter elements
+- AC-4: Environment MUST be deliberately color-reliant to reveal design dependency
+- AC-5: MUST include tasks that require color differentiation
+- AC-6: Debrief MUST explain WCAG 2.1 SC 1.4.1 (Use of Color) and SC 1.4.3 (Contrast)
+- **Status**: ✅ Implemented
 
-**Priority**: P0 (Critical)  
-**Status**: ✅ Implemented
+---
 
-### 2.3 Impact Dashboard & Analytics
+### 2.2 AR Accessibility Auditor
 
-**User Story**: As a user, I want to see my empathy score and learning progress so that I can track my development and earn certification.
+**Description**: Real-time camera-based ADA/WCAG/RPWD Act compliance scanner powered by Amazon Rekognition and Amazon Bedrock.
 
-**Acceptance Criteria**:
+#### FR-2.2.1 Camera & Image Capture
 
-- AC 2.3.1: System MUST calculate empathy score (0-100) based on behavioral data
-- AC 2.3.2: Dashboard MUST display scenarios completed, time spent, and badge level
-- AC 2.3.3: System MUST provide pre/post-assessment quizzes
-- AC 2.3.4: System MUST track knowledge gain percentage
-- AC 2.3.5: Dashboard MUST show AI conversation history
-- AC 2.3.6: System MUST generate downloadable PDF certificates
-- AC 2.3.7: Certificates MUST include completion date, score, and scenarios completed
-- AC 2.3.8: Dashboard MUST display impact visualization statistics
-- AC 2.3.9: System MUST support leaderboard functionality (future)
-- AC 2.3.10: All data MUST persist in DynamoDB
+- AC-1: MUST request camera permissions on AR mode activation with clear explanation
+- AC-2: MUST support live camera feed display
+- AC-3: MUST capture still frames for AI analysis on user trigger (Scan Now)
+- AC-4: MUST compress image to <4MB before sending to Lambda (Rekognition max)
+- AC-5: MUST show "Scanning..." loading indicator during analysis
+- AC-6: MUST display captured frame thumbnail alongside results
+- **Status**: ✅ Implemented
 
-**Priority**: P0 (Critical)  
-**Status**: ✅ Implemented
+#### FR-2.2.2 Amazon Rekognition Integration
 
-### 2.4 Onboarding Tutorial
+- AC-1: Lambda MUST call `DetectLabels` with MaxLabels=40, MinConfidence=55%
+- AC-2: Lambda MUST call `DetectText` for visible signage and numbers
+- AC-3: Both Rekognition calls MUST run in **parallel** (Promise.all) for speed
+- AC-4: MUST extract bounding box coordinates (normalized 0–1 → scaled 0–1000)
+- AC-5: MUST include parent category context in label descriptions
+- AC-6: MUST filter text detections to LINE type with >70% confidence
+- AC-7: MUST pass top 12 bounding box instances to Bedrock for spatial audit
+- **Status**: ✅ Implemented
 
-**User Story**: As a first-time user, I want a guided tutorial explaining core features so that I can quickly understand how to use the platform.
+#### FR-2.2.3 Amazon Bedrock Audit (Nova 2 Lite)
 
-**Acceptance Criteria**:
-- AC 2.4.1: System MUST provide interactive onboarding flow on first visit
-- AC 2.4.2: Tutorial MUST explain 4 core features (simulations, AI guide, dashboard, AR auditor)
-- AC 2.4.3: Each step MUST include visual demonstration
-- AC 2.4.4: System MUST allow users to skip tutorial
+- AC-1: Lambda MUST call `us.amazon.nova-lite-v1:0` via InvokeModelCommand
+- AC-2: Message content MUST be formatted as array `[{text: "..."}]` (Nova format)
+- AC-3: System prompt MUST instruct model to return ONLY valid JSON — no markdown
+- AC-4: Audit prompt MUST cover: DOORWAY, RAMP, STEPS, PATHWAY, TACTILE PAVING, SIGNAGE, CONTROLS, SEATING, PARKING, OBSTACLES, EMERGENCY, FLOORING, LIGHTING
+- AC-5: MUST reference ADA 2010, WCAG 2.1, AND RPWD Act 2016 (India)
+- AC-6: Response MUST include minimum 5 issues per scan
+- AC-7: Each issue MUST include: type, status, description, recommendation, costEstimate, coordinates [ymin,xmin,ymax,xmax]
+- AC-8: Response MUST include `overallComplianceScore` (0–100)
+- AC-9: Frontend MUST strip markdown fences from Nova response before JSON.parse
+- **Status**: ✅ Implemented
 
-- AC 2.4.5: Tutorial MUST complete in <2 minutes
-- AC 2.4.6: System MUST remember completion status (localStorage)
-- AC 2.4.7: Users MUST be able to replay tutorial from settings
-- AC 2.4.8: Tutorial MUST be accessible (keyboard navigation, screen reader compatible)
+#### FR-2.2.4 AR Overlay Display
 
-**Priority**: P1 (High)  
-**Status**: ✅ Implemented
+- AC-1: MUST render color-coded bounding boxes on camera frame
+  - GREEN: COMPLIANT
+  - RED: NON_COMPLIANT
+  - YELLOW: WARNING
+- AC-2: MUST display issue type label above each bounding box
+- AC-3: MUST show compliance score badge (SPATIAL HUD)
+- AC-4: MUST show RPWD Act 2016 banner for Indian regulatory context
+- AC-5: MUST list all issues in scrollable panel with ADA fix and cost estimate
+- AC-6: Each issue MUST have "Fix" and "AI" action buttons
+- **Status**: ✅ Implemented
 
-### 2.5 AR Accessibility Auditor (Phase 2)
+#### FR-2.2.5 Synthesize Fix (Remediation Report)
 
-**User Story**: As a user, I want to scan real-world environments with my smartphone camera so that I can identify accessibility violations and generate compliance reports.
+- AC-1: User selects detected issue → clicks "Synthesize Fix"
+- AC-2: Lambda sends issue context + Rekognition scene labels to Bedrock
+- AC-3: Bedrock generates contractor-ready 7-section remediation report
+- AC-4: Report MUST include: Site Observation, ADA Violation, Remediation Spec, Expected Outcome, Cost Breakdown (₹ and $), Code References, Priority & Timeline
+- AC-5: Cost MUST be shown in both Indian Rupees (₹) and USD ($)
+- AC-6: Priority MUST be CRITICAL / HIGH / MEDIUM / LOW
+- AC-7: Must reference ADA 2010 sections, WCAG criteria, RPWD Act 2016, NBC 2016
+- **Status**: ✅ Implemented
 
-**Acceptance Criteria**:
-- AC 2.5.1: System MUST request camera permissions on AR mode activation
-- AC 2.5.2: System MUST support real-time video feed analysis
-- AC 2.5.3: AI MUST detect doors, ramps, buttons, signs, and tactile paving
-- AC 2.5.4: System MUST measure door widths (32" ADA minimum)
-- AC 2.5.5: System MUST calculate ramp angles (4.76° maximum)
-- AC 2.5.6: System MUST analyze color contrast ratios (WCAG 4.5:1)
-- AC 2.5.7: System MUST measure button heights (15"-48" ADA range)
-- AC 2.5.8: System MUST overlay compliance indicators on video feed
-- AC 2.5.9: Overlays MUST use color coding (green=compliant, red=violation)
-- AC 2.5.10: System MUST provide glowing outlines and pulsing highlights
+---
 
-- AC 2.5.11: System MUST generate detailed audit reports with remediation plans
-- AC 2.5.12: Reports MUST include cost estimates for fixes
-- AC 2.5.13: System MUST support "Live Sync" mode (continuous scanning)
-- AC 2.5.15: AI guide MUST be available in AR mode for real-time Q&A
+### 2.3 AI Expert Guide
 
-**Priority**: P1 (High)  
-**Status**: 🔄 Phase 2 (API tier upgrade required)
+**Description**: Context-aware conversational assistant powered by Amazon Bedrock Nova 2 Lite, available in all simulations and AR Auditor.
 
-#### 2.5.1 Neural Synthesis (Visual Fix)
+#### FR-2.3.1 Conversation Engine
 
-**User Story**: As a user, I want to see AI-generated visualizations of accessibility fixes so that I can understand what compliant solutions look like.
+- AC-1: MUST call Lambda `action: 'chat'` with full message history
+- AC-2: MUST maintain conversation history per session in component state
+- AC-3: MUST validate message alternation (user/assistant) before sending to Bedrock
+- AC-4: MUST trim history to last 20 messages to stay within context limits
+- AC-5: First message MUST always be role: 'user' (Bedrock requirement)
+- AC-6: MUST handle empty/null responses gracefully with fallback message
+- **Status**: ✅ Implemented
 
-**Acceptance Criteria**:
-- AC 2.5.1.2: System MUST generate before/after comparison images
-- AC 2.5.1.3: Visualizations MUST maintain environmental context (lighting, perspective)
-- AC 2.5.1.4: System MUST provide interactive toggle between original and fixed views
-- AC 2.5.1.5: Generated fixes MUST be ADA-compliant
-- AC 2.5.1.6: System MUST include technical specifications in visualizations
-- AC 2.5.1.7: Processing time MUST be <10 seconds per fix
+#### FR-2.3.2 Context Awareness
 
-**Priority**: P2 (Medium)  
-**Status**: 🔄 Phase 2
+- AC-1: System prompt MUST include current simulation/scenario name
+- AC-2: MUST cite exact ADA sections (§) in responses where relevant
+- AC-3: MUST cite WCAG success criteria (e.g. SC 1.4.3) where relevant
+- AC-4: MUST reference RPWD Act 2016 and NBC 2016 for Indian context
+- AC-5: MUST use India-specific statistics ("2.68 crore people with disabilities")
+- AC-6: MUST be instructed to keep responses 2–4 sentences unless asked for more
+- AC-7: MUST mention Amazon Bedrock when asked about its technology
+- **Status**: ✅ Implemented
+
+#### FR-2.3.3 AR Auditor Integration
+
+- AC-1: AI Guide MUST appear as floating panel alongside AR scan results
+- AC-2: "Consult AI" button MUST auto-populate guide with detected issue context
+- AC-3: AI Guide MUST explain each detected issue when asked
+- AC-4: Chat history MUST be isolated per AR Auditor session
+- **Status**: ✅ Implemented
+
+---
+
+### 2.4 Impact Dashboard & Certification
+
+- AC-1: MUST calculate empathy score (0–100) from behavioral data across simulations
+- AC-2: MUST display scenarios completed, time spent, badges earned
+- AC-3: MUST support pre/post assessment quizzes
+- AC-4: MUST generate downloadable PDF certificates with date, score, scenarios
+- AC-5: MUST show leaderboard rankings
+- AC-6: MUST display real-world impact statistics
+- **Status**: ✅ Implemented
+
+---
+
+### 2.5 Authentication (Amazon Cognito)
+
+- AC-1: MUST integrate Amazon Cognito for user sign-up and sign-in
+- AC-2: MUST use Cognito hosted UI for auth flow
+- AC-3: MUST handle JWT token refresh automatically
+- AC-4: MUST support guest/anonymous usage for core simulations (no forced login)
+- AC-5: MUST store Cognito config in environment variables (never hardcoded)
+- **Status**: ✅ Implemented
+
+---
+
+### 2.6 Onboarding Tutorial
+
+- AC-1: MUST provide interactive tutorial on first visit
+- AC-2: MUST explain 4 core features (simulations, AR Auditor, AI Guide, Dashboard)
+- AC-3: MUST be skippable
+- AC-4: MUST complete in <2 minutes
+- AC-5: Feature descriptions MUST reference Amazon Bedrock (not legacy AI providers)
+- **Status**: ✅ Implemented
 
 ---
 
 ## 3. Non-Functional Requirements
 
-### 3.1 Performance Requirements
+### 3.1 Performance
 
+| Requirement | Target | Method |
+|---|---|---|
+| Page load time | <3 seconds globally | CloudFront CDN |
+| AR scan analysis | <10 seconds | Rekognition parallel calls + Bedrock |
+| AI Guide response | <5 seconds (90th percentile) | Lambda + Bedrock Nova 2 Lite |
+| VR scene FPS | 60fps desktop / 30fps mobile | Three.js + WebGL 2.0 |
+| Initial bundle size | <2MB | Vite code splitting |
+| CloudFront latency | <200ms at edge | Global edge locations |
 
-**NFR 3.1.1 - Page Load Time**:
-- Initial page load MUST complete in <3 seconds on 4G connection
-- CloudFront CDN MUST serve static assets globally
-- Code splitting MUST be implemented for route-based lazy loading
-- Asset optimization MUST achieve <2MB initial bundle size
+### 3.2 Security
 
-**NFR 3.1.2 - Simulation Performance**:
-- VR scenes MUST maintain 60 FPS on desktop browsers
-- VR scenes MUST maintain 30 FPS minimum on mobile devices
-- Three.js rendering MUST use WebGL 2.0 when available
-- Texture resolution MUST adapt based on device capabilities
+| Requirement | Implementation |
+|---|---|
+| HTTPS only | CloudFront enforced |
+| CORS | API Gateway configured, Lambda headers `Access-Control-Allow-Origin: *` |
+| No API keys in frontend | All AI calls proxied through Lambda |
+| IAM least privilege | Lambda role: only Rekognition + Bedrock |
+| S3 public access | Blocked — served only via CloudFront |
+| Auth tokens | Cognito JWT with 24hr expiry |
 
-**NFR 3.1.3 - AI Response Time**:
-- AI guide responses MUST return in <3 seconds for 90% of queries
-- AR analysis MUST complete in <10 seconds per frame
-- Visual fix generation MUST complete in <10 seconds
-- System MUST show loading indicators for operations >1 second
+### 3.3 Scalability
 
-**NFR 3.1.4 - Scalability**:
-- System MUST support 10,000 concurrent users
-- Lambda functions MUST auto-scale based on demand
-- DynamoDB MUST use on-demand capacity mode
-- CloudFront MUST handle traffic spikes without degradation
+- Lambda auto-scales 0 → 1,000+ concurrent executions
+- CloudFront handles traffic spikes at edge (no origin hits for cached assets)
+- S3 unlimited storage for static assets
+- Cognito supports up to 50,000 MAU on free tier
+- Bedrock pay-per-token: scales linearly with usage, no pre-provisioning
 
-### 3.2 Security Requirements
+### 3.4 Reliability & Error Handling
 
-**NFR 3.2.1 - Authentication**:
-- System MUST use AWS Cognito for user authentication
-- Passwords MUST meet complexity requirements (8+ chars, mixed case, numbers)
+- Lambda retries: 2 retries with 1s delay on network errors
+- Bedrock timeout: 55 seconds (Lambda timeout: 60 seconds)
+- Rekognition errors: caught, fallback message shown
+- JSON parse errors from Bedrock: caught, safe fallback audit result returned
+- Frontend: React Error Boundaries in all simulation scenes
+- Rate limiting (429): automatic retry with exponential backoff
 
-- Multi-factor authentication MUST be available (future)
-- Session tokens MUST expire after 24 hours
-- Refresh tokens MUST be securely stored
+### 3.5 Accessibility (Platform itself)
 
-**NFR 3.2.2 - API Security**:
-- All API endpoints MUST use HTTPS only
-- API Gateway MUST implement rate limiting (1000 requests/minute per user)
-- CORS MUST be properly configured for frontend domain only
-- API keys MUST never be exposed in client-side code
-
-
-**NFR 3.2.3 - Data Protection**:
-- User data MUST be encrypted at rest in DynamoDB
-- Data in transit MUST use TLS 1.2 or higher
-- PII MUST be handled according to GDPR/CCPA requirements
-- User progress data MUST be isolated per user (no cross-user access)
-
-**NFR 3.2.4 - Infrastructure Security**:
-- S3 buckets MUST block public access (except CloudFront)
-- Lambda functions MUST use least-privilege IAM roles
-- Security headers MUST be configured (CSP, HSTS, X-Frame-Options)
-- CloudFront MUST enforce HTTPS redirects
-
-### 3.3 Availability & Reliability
-
-**NFR 3.3.1 - Uptime**:
-- System MUST maintain 99.9% uptime SLA
-- Planned maintenance windows MUST be <2 hours/month
-
-- CloudFront MUST provide multi-region redundancy
-- DynamoDB MUST use point-in-time recovery
-
-**NFR 3.3.2 - Error Handling**:
-- System MUST gracefully handle API failures with user-friendly messages
-- Failed AI requests MUST retry up to 3 times with exponential backoff
-- Camera access denial MUST show clear instructions
-- Offline mode MUST cache essential assets (future)
-
-**NFR 3.3.3 - Monitoring**:
-- CloudWatch MUST log all Lambda errors
-- API Gateway MUST track request/response metrics
-- Frontend MUST implement error boundary components
-- System MUST alert on >5% error rate
-
-### 3.4 Usability & Accessibility
-
-**NFR 3.4.1 - Cross-Platform Compatibility**:
-- System MUST work on Chrome, Firefox, Safari, Edge (latest 2 versions)
-- System MUST support iOS 14+ and Android 10+
-- System MUST adapt UI for screen sizes 320px - 2560px
-- System MUST support touch, mouse, and keyboard input
-
-**NFR 3.4.2 - Accessibility Compliance**:
-- UI MUST meet WCAG 2.1 Level AA standards
-- All interactive elements MUST be keyboard accessible
-- Color contrast MUST meet 4.5:1 ratio minimum
-- Screen reader compatibility MUST be tested
-
-- Focus indicators MUST be visible on all focusable elements
-- Alt text MUST be provided for all images
-
-**NFR 3.4.3 - User Experience**:
-- Navigation MUST be intuitive (max 3 clicks to any feature)
-- Loading states MUST be shown for all async operations
-- Error messages MUST be actionable and clear
-- Tutorial MUST be skippable but easily accessible
-- System MUST remember user preferences (localStorage)
-
-### 3.5 Maintainability & DevOps
-
-**NFR 3.5.1 - Code Quality**:
-- TypeScript MUST be used for type safety
-- Code coverage MUST be >80% for critical paths (future)
-- ESLint MUST enforce consistent code style
-- Components MUST follow single responsibility principle
-
-**NFR 3.5.2 - Deployment**:
-- Deployment MUST be automated via scripts
-- Infrastructure MUST be defined as code (CloudFormation)
-- Serverless Framework MUST manage Lambda deployments
-- Zero-downtime deployments MUST be supported
-
-**NFR 3.5.3 - Documentation**:
-- README MUST include setup and deployment instructions
-- API endpoints MUST be documented
-- Component props MUST be documented with TypeScript
-- Architecture diagrams MUST be maintained
+- Platform MUST meet WCAG 2.1 Level AA (ironic if it didn't)
+- Keyboard navigation for all interactive elements
+- Color contrast ≥4.5:1 on all UI text
+- Screen reader compatible navigation
+- Alt text on all meaningful images
 
 ---
 
-## 4. Technical Constraints
+## 4. AWS Infrastructure Requirements
 
-### 4.1 Technology Stack Constraints
+### 4.1 Lambda (walkinmyshoes-ai)
 
+| Parameter | Value |
+|---|---|
+| Runtime | Node.js 20.x |
+| Handler | index.handler |
+| Memory | 256 MB |
+| Timeout | 60 seconds |
+| IAM Role Permissions | AmazonRekognitionFullAccess, AmazonBedrockFullAccess |
+| Environment | us-east-1 |
+| Module type | ES Module (import/export) |
 
-: Frontend MUST use React 18+ with TypeScript  
-: 3D rendering MUST use Three.js via React Three Fiber  
-: Backend MUST use AWS Lambda (Node.js 18+)  
-: Database MUST use AWS DynamoDB  
-: Authentication MUST use AWS Cognito  
-: Hosting MUST use AWS S3 + CloudFront  
-: Build tool MUST be Vite  
+### 4.2 Amazon Bedrock
 
-### 4.2 AWS Infrastructure Constraints
+| Parameter | Value |
+|---|---|
+| Model | Amazon Nova 2 Lite |
+| Model ID | `us.amazon.nova-lite-v1:0` |
+| Inference type | Cross-region on-demand |
+| Max tokens (audit) | 2500 |
+| Max tokens (chat) | 700 |
+| Temperature | 0.5 |
+| Message format | `[{role, content: [{text: "..."}]}]` |
+| System format | `[{text: "..."}]` |
 
-**TC 4.2.1**: All resources MUST be deployed in us-east-1 region  
-**TC 4.2.2**: Monthly costs MUST stay within $100 credit budget initially  
-**TC 4.2.3**: Lambda functions MUST use <512MB memory  
-**TC 4.2.4**: DynamoDB MUST use on-demand capacity mode  
-**TC 4.2.5**: S3 bucket names MUST follow naming conventions  
-**TC 4.2.6**: CloudFormation stacks MUST be idempotent  
+### 4.3 Amazon Rekognition
 
-### 4.3 API Constraints
+| Parameter | Value |
+|---|---|
+| Operations | DetectLabels, DetectText |
+| Max labels | 40 |
+| Min confidence | 55% (labels), 70% (text) |
+| Max image size | 4 MB |
+| Parallelism | Both calls via Promise.all |
+| Bounding box scale | Normalized 0–1 → multiplied by 1000 |
 
-: API responses MUST be <5MB  
-: WebXR MUST use native browser APIs (no external dependencies)  
+### 4.4 API Gateway
+
+| Parameter | Value |
+|---|---|
+| ID | x5rbnqm2v4 |
+| Stage | /dev |
+| Type | REST API |
+| Integration | Lambda Proxy |
+| CORS | Enabled on /ai resource |
+| Methods | POST (Lambda), OPTIONS (CORS preflight) |
+
+### 4.5 CloudFront
+
+| Parameter | Value |
+|---|---|
+| Distribution ID | E2FKI267871EMW |
+| Domain | d2d1ibzdtgm1nq.cloudfront.net |
+| Origin | walkinmyshoes-frontend-2026.s3.amazonaws.com |
+| Cache policy | Managed-CachingOptimized |
+| index.html | no-cache, no-store, must-revalidate |
+| JS/CSS assets | public, max-age=31536000, immutable |
+
+### 4.6 Amazon S3
+
+| Parameter | Value |
+|---|---|
+| Bucket | walkinmyshoes-frontend-2026 |
+| Region | us-east-1 |
+| Public access | Blocked (CloudFront only) |
+| Static hosting | Via CloudFront OAC |
+
+### 4.7 Amazon Cognito
+
+| Parameter | Value |
+|---|---|
+| User Pool ID | us-east-1_VHC0a9xM3 |
+| Client ID | 20iorjt3l68ebjgohdrd0agj8a |
+| Domain | walkinmyshoes-auth.auth.us-east-1.amazoncognito.com |
+| Region | us-east-1 |
 
 ---
 
-## 5. Data Requirements
+## 5. Compliance Standards
 
-### 5.1 User Data Model
+### 5.1 Accessibility Standards Audited by the Platform
 
+| Standard | Coverage |
+|---|---|
+| ADA 2010 | Full — all §400–§800 sections for physical spaces |
+| WCAG 2.1 Level AA | Full — all success criteria for digital content |
+| RPWD Act 2016 (India) | Full — building access, signage, pathways |
+| NBC 2016 (India) | Referenced — National Building Code accessibility requirements |
+| ASTM F1637 | Flooring slip resistance (≥0.6 wet) |
 
-**Table**: `walkinmyshoes-users`
+### 5.2 Platform's Own Compliance
 
-```json
-{
-  "userId": "string (PK)",
-  "email": "string",
-  "name": "string",
-  "createdAt": "timestamp",
-  "lastLogin": "timestamp",
-  "organizationId": "string (optional)",
-  "role": "user | admin | enterprise"
-}
+| Standard | Status |
+|---|---|
+| WCAG 2.1 Level AA | ✅ Targeted |
+| HTTPS | ✅ CloudFront enforced |
+| Data privacy | ✅ No PII stored beyond Cognito auth |
+| Indian IT Act | ✅ Compliant |
+
+---
+
+## 6. Data Flow Requirements
+
+### 6.1 AR Scan Flow
+
+```
+User taps "Scan Now"
+→ Camera frame captured as canvas.toDataURL('image/jpeg', 0.8)
+→ Base64 extracted (strip data URI prefix)
+→ Size check: >4MB → error, else continue
+→ POST to API Gateway /ai
+→ Lambda receives imageBase64
+→ Promise.all([DetectLabels, DetectText])
+→ Build scene description (labels + text + bounding boxes)
+→ Bedrock Nova 2 Lite: ADA/WCAG/RPWD audit prompt
+→ JSON parse response
+→ Return {result: JSON string}
+→ Frontend parses issues[]
+→ Render AR overlays + issue list
 ```
 
-### 5.2 Progress Data Model
+### 6.2 Chat Flow
 
-**Table**: `walkinmyshoes-progress`
-
-```json
-{
-  "userId": "string (PK)",
-  "sessionId": "string (SK)",
-  "scenarioType": "visual | hearing | motor | colorblind",
-  "completedAt": "timestamp",
-  "duration": "number (seconds)",
-  "empathyScore": "number (0-100)",
-  "tasksCompleted": "number",
-  "errorsCount": "number",
-  "chatHistory": "array of messages",
-  "assessmentScores": {
-    "preScore": "number",
-    "postScore": "number"
-  }
-}
 ```
-
-### 5.3 Leaderboard Data Model
-
-**Table**: `walkinmyshoes-leaderboard`
-
-```json
-{
-  "leaderboardId": "string (PK)",
-  "userId": "string",
-  "userName": "string (anonymized)",
-  "totalEmpathyScore": "number",
-  "scenariosCompleted": "number",
-  "totalTimeSpent": "number (seconds)",
-  "rank": "number",
-  "updatedAt": "timestamp"
-}
-```
-
-### 5.4 AR Audit Data Model (Phase 2)
-
-
-**Table**: `walkinmyshoes-audits`
-
-```json
-{
-  "auditId": "string (PK)",
-  "userId": "string",
-  "location": "string",
-  "scannedAt": "timestamp",
-  "detectedIssues": "array of violations",
-  "complianceScore": "number (0-100)",
-  "estimatedCost": "number",
-  "reportUrl": "string (S3 URL)",
-  "status": "draft | completed | shared"
-}
+User types message
+→ Push to local history array [{role: 'user', content: text}]
+→ Validate: first message must be 'user', alternating roles
+→ Slice last 20 messages
+→ POST to API Gateway /ai with action: 'chat'
+→ Lambda builds Nova message array with [{text: content}] format
+→ Bedrock Nova 2 Lite: system prompt + messages
+→ Return {result: reply text}
+→ Push reply to history [{role: 'assistant', content: reply}]
+→ Display in chat UI
 ```
 
 ---
 
-## 6. Integration Requirements
- 
-: API key MUST be stored in AWS Parameter Store  
-: System MUST handle rate limiting gracefully  
-: System MUST implement retry logic with exponential backoff  
+## 7. Risk Management
 
-### 6.2 AWS Service Integration
-
-**IR 6.2.1**: Frontend MUST authenticate users via Cognito  
-**IR 6.2.2**: Frontend MUST call Lambda via API Gateway  
-**IR 6.2.3**: Lambda MUST read/write to DynamoDB  
-**IR 6.2.4**: Lambda MUST retrieve secrets from Parameter Store  
-**IR 6.2.5**: CloudFront MUST serve S3 content with caching  
-**IR 6.2.6**: CloudWatch MUST collect logs from all services  
-
-### 6.3 Third-Party Services (Future)
-
-
-**IR 6.3.1**: Email notifications via AWS SES  
-**IR 6.3.3**: Payment processing via Stripe  
-**IR 6.3.4**: Video testimonials via YouTube API  
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| Bedrock payment verification delay | Medium | High | Use Nova Lite (Amazon's own model — faster verification) |
+| Rekognition returns no labels | Low | Medium | Fallback: Bedrock generates audit from generic space description |
+| Nova response not valid JSON | Low | Medium | Frontend strips markdown fences, catches parse errors, shows safe fallback |
+| Lambda cold start > 5s | Low | Low | Keep Lambda warm via API Gateway, 256MB memory for fast init |
+| CloudFront cache stale | Low | Low | Always invalidate `/*` after every deploy |
+| Camera permission denied | Medium | Medium | Clear instructions shown, manual description input as fallback |
 
 ---
 
-## 7. Compliance & Legal Requirements
+## 8. Roadmap
 
-### 7.1 Accessibility Standards
+### Phase 1 — Completed ✅ (March 2026)
+- 4 VR disability simulations
+- AR Accessibility Auditor (Rekognition + Bedrock)
+- AI Expert Guide (Bedrock Nova 2 Lite)
+- Synthesize Fix remediation reports
+- Impact Dashboard & certification
+- Amazon Cognito authentication
+- Full AWS deployment (7 services)
 
-**CR 7.1.1**: Platform MUST comply with WCAG 2.1 Level AA  
-**CR 7.1.2**: Simulations MUST accurately represent disability experiences  
-**CR 7.1.3**: Content MUST be reviewed by disability advocates  
-**CR 7.1.4**: AR auditor MUST reference current ADA standards  
+### Phase 2 — Q2 2026
+- Mobile app (React Native)
+- Multi-language support (Hindi, Tamil, Telugu, Marathi)
+- Enterprise admin dashboard with org-wide analytics
+- Persistent audit history in DynamoDB
 
-### 7.2 Data Privacy
-
-**CR 7.2.1**: System MUST comply with GDPR (EU users)  
-**CR 7.2.2**: System MUST comply with CCPA (California users)  
-**CR 7.2.3**: Privacy policy MUST be displayed and accepted  
-**CR 7.2.4**: Users MUST be able to export their data  
-**CR 7.2.5**: Users MUST be able to delete their accounts  
-
-### 7.3 Content & Intellectual Property
-
-**CR 7.3.1**: All 3D models MUST be properly licensed  
-**CR 7.3.2**: Audio assets MUST be royalty-free or licensed  
-**CR 7.3.3**: User testimonials MUST have signed releases  
-**CR 7.3.4**: Educational content MUST cite sources  
-
----
-
-## 8. Testing Requirements
-
-### 8.1 Functional Testing
-
-**TR 8.1.1**: All acceptance criteria MUST have test cases  
-**TR 8.1.2**: Critical user flows MUST be tested end-to-end  
-**TR 8.1.3**: AI responses MUST be validated for accuracy  
-**TR 8.1.4**: Cross-browser testing MUST cover 5 major browsers  
-
-### 8.2 Performance Testing
-
-
-**TR 8.2.1**: Load testing MUST simulate 10,000 concurrent users  
-**TR 8.2.2**: VR scenes MUST maintain target FPS under load  
-**TR 8.2.3**: API response times MUST be measured and optimized  
-**TR 8.2.4**: Bundle size MUST be monitored and kept <2MB  
-
-### 8.3 Security Testing
-
-**TR 8.3.1**: Penetration testing MUST be conducted before launch  
-**TR 8.3.2**: API endpoints MUST be tested for injection attacks  
-**TR 8.3.3**: Authentication flows MUST be tested for vulnerabilities  
-**TR 8.3.4**: HTTPS enforcement MUST be verified  
-
-### 8.4 Accessibility Testing
-
-**TR 8.4.1**: Screen reader compatibility MUST be tested (NVDA, JAWS)  
-**TR 8.4.2**: Keyboard navigation MUST be tested for all features  
-**TR 8.4.3**: Color contrast MUST be validated with automated tools  
-**TR 8.4.4**: Focus management MUST be tested in all scenarios  
-
----
-
-## 9. Deployment Requirements
-
-### 9.1 Infrastructure Deployment
-
-**DR 9.1.1**: DynamoDB tables MUST be deployed via CloudFormation  
-**DR 9.1.2**: Cognito user pools MUST be deployed via CloudFormation  
-**DR 9.1.3**: S3 + CloudFront MUST be deployed via CloudFormation  
-**DR 9.1.4**: Lambda functions MUST be deployed via Serverless Framework  
-**DR 9.1.5**: All deployments MUST be idempotent and repeatable  
-
-### 9.2 Frontend Deployment
-
-**DR 9.2.1**: Frontend MUST be built with production optimizations  
-**DR 9.2.2**: Assets MUST be uploaded to S3 with correct cache headers  
-**DR 9.2.3**: CloudFront cache MUST be invalidated after deployment  
-**DR 9.2.4**: Deployment script MUST verify successful upload  
-
-### 9.3 Environment Configuration
-
-
-**DR 9.3.1**: Environment variables MUST be documented in .env.example  
-**DR 9.3.2**: Secrets MUST never be committed to version control  
-**DR 9.3.3**: Production config MUST be separate from development  
-**DR 9.3.4**: API endpoints MUST be configurable per environment  
-
----
-
-## 10. Success Metrics & KPIs
-
-### 10.1 User Engagement Metrics
-
-**KPI 10.1.1**: Simulation completion rate >85%  
-**KPI 10.1.2**: Average session duration 15-25 minutes  
-**KPI 10.1.3**: Return user rate >40% within 30 days  
-**KPI 10.1.4**: AI guide usage rate >60% of users  
-
-### 10.2 Learning Outcome Metrics
-
-**KPI 10.2.1**: Average empathy score improvement 40-60 points  
-**KPI 10.2.2**: Post-assessment score improvement >70%  
-**KPI 10.2.3**: Certificate completion rate >50%  
-**KPI 10.2.4**: User satisfaction score >4.5/5  
-
-### 10.3 Technical Performance Metrics
-
-**KPI 10.3.1**: Page load time <3 seconds (P95)  
-**KPI 10.3.2**: API response time <500ms (P95)  
-**KPI 10.3.3**: System uptime >99.9%  
-**KPI 10.3.4**: Error rate <1%  
-
-### 10.4 Business Metrics
-
-**KPI 10.4.1**: Monthly active users growth >20%  
-**KPI 10.4.2**: Enterprise customer acquisition >5/quarter  
-**KPI 10.4.3**: AR audit reports generated >100/month  
-**KPI 10.4.4**: Customer acquisition cost <$50  
-
----
-
-## 11. Risk Assessment
-
-### 11.1 Technical Risks
-
-
-
-- **Mitigation**: Implement request queuing and caching  
-- **Severity**: Medium  
-
-**Risk 11.1.2**: WebXR browser compatibility issues  
-- **Mitigation**: Provide fallback 2D mode  
-- **Severity**: Low  
-
-**Risk 11.1.3**: AWS cost overruns  
-- **Mitigation**: Set up billing alerts and cost monitoring  
-- **Severity**: Medium  
-
-**Risk 11.1.4**: Performance degradation under load  
-- **Mitigation**: Implement auto-scaling and CDN caching  
-- **Severity**: Medium  
-
-### 11.2 Business Risks
-
-**Risk 11.2.1**: Low user adoption  
-- **Mitigation**: Focus on demo quality and word-of-mouth  
-- **Severity**: High  
-
-**Risk 11.2.2**: Competitor entry  
-- **Mitigation**: Build strong brand and community  
-- **Severity**: Medium  
-
-**Risk 11.2.3**: Regulatory changes (accessibility standards)  
-- **Mitigation**: Stay updated with ADA/WCAG changes  
-- **Severity**: Low  
-
-### 11.3 Operational Risks
-
-**Risk 11.3.1**: Key team member unavailability  
-- **Mitigation**: Comprehensive documentation  
-- **Severity**: Medium  
-
-**Risk 11.3.2**: 
-- **Mitigation**: Implement graceful degradation  
-- **Severity**: Medium  
-
----
-
-## 12. Future Enhancements (Roadmap)
-
-### Phase 2 (Q2 2026)
-- AR Accessibility Auditor full deployment
-- Neural Synthesis visual fix engine
-- Mobile app optimization
-- Multi-language support (Spanish, French, Mandarin)
-
-### Phase 3 (Q3 2026)
-- Enterprise admin dashboard
+### Phase 3 — Q3 2026
 - Custom scenario builder
-- Team analytics and reporting
-- API for third-party integrations
-- White-label options
-
-### Phase 4 (Q4 2026)
-- VR headset optimization (Meta Quest, PSVR2)
-- Haptic feedback integration
-- Multiplayer training sessions
-- Advanced AI coaching with personalized learning paths
+- API for third-party LMS integrations (Canvas, Moodle)
+- White-label options for enterprises
 - Cognitive disability simulations
 
-### Phase 5 (2027)
-- Global expansion and localization
-- Industry-specific scenarios (healthcare, retail, education)
-- Certification partnerships with accessibility organizations
-- Mobile AR app (iOS/Android native)
-- Integration with LMS platforms (Canvas, Blackboard, Moodle)
+### Phase 4 — Q4 2026
+- VR headset support (Meta Quest, PSVR2)
+- Haptic feedback integration
+- Multiplayer group training sessions
+- Amazon Bedrock fine-tuned model on RPWD Act cases
+
+### Phase 5 — 2027
+- National rollout with government partnership
+- Integration with BIS (Bureau of Indian Standards) compliance database
+- Certification recognized by Ministry of Social Justice and Empowerment
 
 ---
 
-## 13. Appendices
-
-### Appendix A: Glossary
-
-- **ADA**: Americans with Disabilities Act
-- **WCAG**: Web Content Accessibility Guidelines
-- **WebXR**: Web-based Extended Reality (VR/AR)
-- **Empathy Score**: Quantified measure of user's empathy development (0-100)
-- **Neural Synthesis**: AI-generated architectural visualization
-- **Clinical Profile**: Specific type of visual impairment simulation
-
-### Appendix B: References
-
-- ADA Standards: https://www.ada.gov/2010ADAstandards_index.htm
-- WCAG 2.1: https://www.w3.org/WAI/WCAG21/quickref/
-- WHO Disability Statistics: https://www.who.int/news-room/fact-sheets/detail/disability-and-health
-- WebXR Device API: https://www.w3.org/TR/webxr/
-
-### Appendix C: Stakeholder Contacts
-
-- **Product Owner**: Kalim Sayyed
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: March 1, 2026  
-**Next Review**: April 1, 2026  
-**Status**: Approved for Implementation
+**Document Owner**: Kalim Sayyed
+**Last Updated**: March 7, 2026
+**Version**: 2.0 — Bedrock Edition
+**Status**: Production Live
