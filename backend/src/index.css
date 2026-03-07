@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------
+   Base Reset + Smooth UI
+---------------------------- */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-semibold tracking-tight text-slate-900;
+  }
+
+  p {
+    @apply text-slate-600 leading-relaxed;
+  }
+
+  button {
+    @apply transition-all duration-200 ease-in-out;
+  }
+}
+
+/* ---------------------------
+   Reusable Components
+---------------------------- */
+
+@layer components {
+  .container-clean {
+    @apply max-w-6xl mx-auto px-6;
+  }
+
+  .section-spacing {
+    @apply py-20 md:py-28;
+  }
+
+  .btn-primary {
+    @apply bg-indigo-600 text-white px-6 py-3 rounded-xl 
+           hover:bg-indigo-700 active:scale-95 shadow-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-white border border-slate-300 text-slate-800 
+           px-6 py-3 rounded-xl hover:bg-slate-100 active:scale-95;
+  }
+
+  .card-clean {
+    @apply bg-white rounded-2xl shadow-sm border border-slate-200 p-6;
+  }
+}
+
+/* ---------------------------
+   Subtle Background Utility
+---------------------------- */
+
+@layer utilities {
+  .bg-gradient-soft {
+    background: radial-gradient(
+      circle at 20% 20%,
+      rgba(99, 102, 241, 0.15),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(16, 185, 129, 0.12),
+      transparent 40%
+    );
+  }
+}

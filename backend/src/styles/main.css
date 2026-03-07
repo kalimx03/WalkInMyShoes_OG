@@ -1,0 +1,878 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================
+   LOADING SCREEN STYLES
+   (Must work without React to show during initial load)
+===================================================== */
+#loadingScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0033 50%, #003366 100%);
+  color: white;
+  z-index: 9999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#loadingScreen.hidden {
+  display: none;
+}
+
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0033 50%, #003366 100%);
+  color: white;
+  z-index: 9999;
+}
+
+.loading-container.hidden {
+  display: none;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 2rem;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #7c3aed;
+  border-right: 4px solid #06b6d4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  font-size: 1.25rem;
+  font-weight: 500;
+  text-align: center;
+  max-width: 300px;
+}
+
+.loading-subtext {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1rem;
+}
+
+/* =====================================================
+   ROOT VARIABLES & THEME
+===================================================== */
+@layer base {
+  :root {
+    --color-primary: #3b82f6;
+    --color-secondary: #1f2937;
+    --color-accent: #10b981;
+    --color-danger: #ef4444;
+    --color-warning: #f59e0b;
+    --color-deep-navy: #0a0a1a;
+    --color-purple-accent: #7c3aed;
+    --color-cyan-accent: #06b6d4;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-deep-navy text-white overflow-x-hidden h-full;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    @apply w-full h-full min-h-screen;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+/* =====================================================
+   COMPONENT STYLES
+===================================================== */
+@layer components {
+  /* Glass Morphism Effect */
+  .glass-morphism {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl;
+    transition: all 0.3s ease;
+  }
+
+  .glass-morphism:hover {
+    @apply bg-white/15 border-white/30;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-accent to-cyan-accent bg-clip-text text-transparent;
+  }
+
+  /* Primary Button */
+  .button-primary {
+    @apply px-8 py-4 bg-gradient-to-r from-purple-accent to-cyan-accent rounded-full font-semibold text-white hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-purple-accent/50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary Button */
+  .button-secondary {
+    @apply px-8 py-4 glass-morphism font-semibold text-white hover:bg-white/20 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Tertiary Button */
+  .button-tertiary {
+    @apply px-8 py-4 bg-transparent border border-purple-accent text-purple-accent font-semibold rounded-full hover:bg-purple-accent hover:text-white transition-all duration-300 active:scale-95;
+  }
+
+  /* Input Fields */
+  .input-field {
+    @apply w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-accent focus:bg-white/15 transition-all duration-300;
+  }
+
+  .input-field::placeholder {
+    @apply text-gray-500;
+  }
+
+  /* VR/AR UI Overlay */
+  .vr-ui-overlay {
+    @apply fixed top-0 left-0 w-full h-full pointer-events-none z-50;
+  }
+
+  .vr-ui-element {
+    @apply pointer-events-auto;
+  }
+
+  /* Cards */
+  .card {
+    @apply glass-morphism p-6 hover:shadow-lg transition-shadow duration-300;
+  }
+
+  .card-elevated {
+    @apply glass-morphism p-6 shadow-2xl;
+  }
+
+  /* Headers */
+  .section-header {
+    @apply text-4xl md:text-5xl font-bold mb-4 gradient-text;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-block px-3 py-1 rounded-full text-sm font-semibold bg-purple-accent/20 text-purple-accent border border-purple-accent/30;
+  }
+
+  .badge-success {
+    @apply bg-green-accent/20 text-green-accent border border-green-accent/30;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-accent/20 text-yellow-accent border border-yellow-accent/30;
+  }
+
+  .badge-danger {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+
+  /* Loader */
+  .spinner-component {
+    @apply border-4 border-white/20 border-t-white rounded-full;
+    animation: spin 1s linear infinite;
+  }
+
+  .spinner-sm {
+    @apply w-6 h-6 spinner-component;
+  }
+
+  .spinner-md {
+    @apply w-8 h-8 spinner-component;
+  }
+
+  .spinner-lg {
+    @apply w-12 h-12 spinner-component;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    @apply w-full h-2 bg-white/10 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-purple-accent to-cyan-accent rounded-full transition-all duration-300;
+  }
+
+  /* Modal Overlay */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-40;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50 bottom-full mb-2;
+  }
+
+  /* Success Message */
+  .message-success {
+    @apply p-4 bg-green-500/20 border border-green-500/50 text-green-300 rounded-lg;
+  }
+
+  /* Error Message */
+  .message-error {
+    @apply p-4 bg-red-500/20 border border-red-500/50 text-red-300 rounded-lg;
+  }
+
+  /* Warning Message */
+  .message-warning {
+    @apply p-4 bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 rounded-lg;
+  }
+
+  /* Info Message */
+  .message-info {
+    @apply p-4 bg-blue-500/20 border border-blue-500/50 text-blue-300 rounded-lg;
+  }
+}
+
+/* =====================================================
+   UTILITY STYLES
+===================================================== */
+@layer utilities {
+  /* Text Shadows */
+  .text-shadow-glow {
+    text-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Gradient Borders */
+  .border-gradient {
+    border-image: linear-gradient(45deg, #7c3aed, #06b6d4) 1;
+  }
+
+  /* Smooth Transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  /* Blur Effects */
+  .blur-sm-custom {
+    filter: blur(2px);
+  }
+
+  .blur-lg-custom {
+    filter: blur(8px);
+  }
+
+  /* Backdrop Filters */
+  .backdrop-blur-sm-custom {
+    backdrop-filter: blur(2px);
+  }
+
+  .backdrop-blur-lg-custom {
+    backdrop-filter: blur(8px);
+  }
+
+  /* Overflow Fade */
+  .overflow-fade {
+    position: relative;
+  }
+
+  .overflow-fade::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, rgba(10, 10, 26, 0.8));
+    pointer-events: none;
+  }
+}
+
+/* =====================================================
+   ANIMATIONS
+===================================================== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.8);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE UTILITIES
+===================================================== */
+@layer utilities {
+  /* Container Padding */
+  .container-padding {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+
+  /* Centered Container */
+  .container-centered {
+    @apply max-w-7xl mx-auto container-padding;
+  }
+
+  /* Grid Layout Helpers */
+  .grid-auto {
+    @apply grid auto-cols-fr gap-6;
+  }
+
+  /* Flex Helpers */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  /* Text Truncation */
+  .truncate-1 {
+    @apply truncate;
+  }
+
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Safe Area */
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+  }
+
+  .safe-area-left {
+    padding-left: max(env(safe-area-inset-left), 0);
+  }
+
+  .safe-area-right {
+    padding-right: max(env(safe-area-inset-right), 0);
+  }
+
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top), 0);
+  }
+}
+
+/* =====================================================
+   SCROLLBAR STYLING
+===================================================== */
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-white/5;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-purple-accent/50 hover:bg-purple-accent rounded-full;
+}
+
+/* Firefox */
+* {
+  scrollbar-color: rgba(124, 58, 237, 0.5) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
+/* =====================================================
+   PRINT STYLES
+===================================================== */
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+
+  .no-print {
+    @apply hidden;
+  }
+
+  .glass-morphism {
+    @apply bg-white border-black;
+  }
+
+  .button-primary,
+  .button-secondary {
+    @apply border border-black;
+  }
+}
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  /* Light mode adjustments if needed */
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+  /* Headers */
+  .section-header {
+    @apply text-4xl md:text-5xl font-bold mb-4 gradient-text;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-block px-3 py-1 rounded-full text-sm font-semibold bg-purple-accent/20 text-purple-accent border border-purple-accent/30;
+  }
+
+  .badge-success {
+    @apply bg-green-accent/20 text-green-accent border border-green-accent/30;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-accent/20 text-yellow-accent border border-yellow-accent/30;
+  }
+
+  .badge-danger {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+
+  /* Loader */
+  .spinner {
+    @apply border-4 border-white/20 border-t-white rounded-full;
+    animation: spin 1s linear infinite;
+  }
+
+  .spinner-sm {
+    @apply w-6 h-6 spinner;
+  }
+
+  .spinner-md {
+    @apply w-8 h-8 spinner;
+  }
+
+  .spinner-lg {
+    @apply w-12 h-12 spinner;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    @apply w-full h-2 bg-white/10 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-purple-accent to-cyan-accent rounded-full transition-all duration-300;
+  }
+
+  /* Modal Overlay */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-40;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply absolute hidden group-hover:block bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50 bottom-full mb-2;
+  }
+
+  /* Success Message */
+  .message-success {
+    @apply p-4 bg-green-500/20 border border-green-500/50 text-green-300 rounded-lg;
+  }
+
+  /* Error Message */
+  .message-error {
+    @apply p-4 bg-red-500/20 border border-red-500/50 text-red-300 rounded-lg;
+  }
+
+  /* Warning Message */
+  .message-warning {
+    @apply p-4 bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 rounded-lg;
+  }
+
+  /* Info Message */
+  .message-info {
+    @apply p-4 bg-blue-500/20 border border-blue-500/50 text-blue-300 rounded-lg;
+  }
+}
+
+/* =====================================================
+   UTILITY STYLES
+===================================================== */
+@layer utilities {
+  /* Text Shadows */
+  .text-shadow-glow {
+    text-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Gradient Borders */
+  .border-gradient {
+    border-image: linear-gradient(45deg, #7c3aed, #06b6d4) 1;
+  }
+
+  /* Smooth Transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  /* Blur Effects */
+  .blur-sm-custom {
+    filter: blur(2px);
+  }
+
+  .blur-lg-custom {
+    filter: blur(8px);
+  }
+
+  /* Backdrop Filters */
+  .backdrop-blur-sm-custom {
+    backdrop-filter: blur(2px);
+  }
+
+  .backdrop-blur-lg-custom {
+    backdrop-filter: blur(8px);
+  }
+
+  /* Overflow Fade */
+  .overflow-fade {
+    position: relative;
+  }
+
+  .overflow-fade::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, rgba(10, 10, 26, 0.8));
+    pointer-events: none;
+  }
+}
+
+/* =====================================================
+   ANIMATIONS
+===================================================== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.8);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE UTILITIES
+===================================================== */
+@layer utilities {
+  /* Container Padding */
+  .container-padding {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+
+  /* Centered Container */
+  .container-centered {
+    @apply max-w-7xl mx-auto container-padding;
+  }
+
+  /* Grid Layout Helpers */
+  .grid-auto {
+    @apply grid auto-cols-fr gap-6;
+  }
+
+  /* Flex Helpers */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  /* Text Truncation */
+  .truncate-1 {
+    @apply truncate;
+  }
+
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Safe Area */
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+  }
+
+  .safe-area-left {
+    padding-left: max(env(safe-area-inset-left), 0);
+  }
+
+  .safe-area-right {
+    padding-right: max(env(safe-area-inset-right), 0);
+  }
+
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top), 0);
+  }
+}
+
+/* =====================================================
+   SCROLLBAR STYLING
+===================================================== */
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-white/5;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-purple-accent/50 hover:bg-purple-accent rounded-full;
+}
+
+/* Firefox */
+* {
+  scrollbar-color: rgba(124, 58, 237, 0.5) rgba(255, 255, 255, 0.05);
+  scrollbar-width: thin;
+}
+
+/* =====================================================
+   PRINT STYLES
+===================================================== */
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+
+  .no-print {
+    @apply hidden;
+  }
+
+  .glass-morphism {
+    @apply bg-white border-black;
+  }
+
+  .button-primary,
+  .button-secondary {
+    @apply border border-black;
+  }
+}
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+

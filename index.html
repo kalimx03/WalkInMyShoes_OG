@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WalkInMyShoes — Empathy Through Experience</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'scanning-line': 'scanning-line 8s linear infinite',
+            'scan': 'scan 12s linear infinite',
+            'onboarding-scan': 'onboarding-scan 8s linear infinite',
+            'scanline': 'scanline 10s linear infinite',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!--
+    NOTE: No <meta http-equiv="Content-Security-Policy"> here.
+    CSP is handled at the server/CDN level (CloudFront response headers policy).
+    A meta CSP tag overrides server headers and breaks A-Frame's shader compiler.
+  -->
+
+  <!-- A-Frame WebXR — MUST load before React to register custom elements -->
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; }
+    #root { height: 100vh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── A-Frame: stay behind UI ── */
+    .a-canvas { z-index: 0 !important; position: absolute !important; }
+    a-scene[embedded] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    /* ── Custom scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.7); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ── Animation keyframes (for components that use these via style tag) ── */
+    @keyframes scanning-line {
+      0%   { transform: translateY(-150px); opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateY(1150px); opacity: 0; }
+    }
+    @keyframes scan {
+      0%   { top: -10%; }
+      100% { top: 110%; }
+    }
+    @keyframes onboarding-scan {
+      0%   { top: 0; }
+      100% { top: 100%; }
+    }
+    @keyframes scanline {
+      0%   { top: 0; }
+      100% { top: 100%; }
+    }
+
+    /* ── Tailwind CSS animate-in plugin (manual) ── */
+    @keyframes tw-fade-in   { from { opacity: 0; }                              to { opacity: 1; } }
+    @keyframes tw-zoom-in   { from { opacity: 0; transform: scale(0.95); }      to { opacity: 1; transform: scale(1); } }
+    @keyframes tw-slide-top { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes tw-slide-bot { from { opacity: 0; transform: translateY(16px); }  to { opacity: 1; transform: translateY(0); } }
+    @keyframes tw-slide-right { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+
+    .animate-in                { animation-fill-mode: both; animation-timing-function: cubic-bezier(0.16,1,0.3,1); }
+    .fade-in                   { animation-name: tw-fade-in; }
+    .zoom-in                   { animation-name: tw-zoom-in; }
+    .slide-in-from-top-4       { animation-name: tw-slide-top; }
+    .slide-in-from-bottom-8    { animation-name: tw-slide-bot; }
+    .slide-in-from-right-4     { animation-name: tw-slide-right; }
+    .duration-200 { animation-duration: 0.2s; }
+    .duration-300 { animation-duration: 0.3s; }
+    .duration-400 { animation-duration: 0.4s; }
+    .duration-500 { animation-duration: 0.5s; }
+    .duration-700 { animation-duration: 0.7s; }
+    .duration-1000 { animation-duration: 1s; }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+
+    /* ── Bounce delay for AI guide dots ── */
+    .animate-bounce.delay-100 { animation-delay: 0.1s; }
+    .animate-bounce.delay-200 { animation-delay: 0.2s; }
+
+    /* ── Tailwind backdrop-blur fix for Safari ── */
+    .backdrop-blur-sm  { -webkit-backdrop-filter: blur(4px);  backdrop-filter: blur(4px); }
+    .backdrop-blur-md  { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+    .backdrop-blur-xl  { -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+    .backdrop-blur-2xl { -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); }
+    .backdrop-blur-3xl { -webkit-backdrop-filter: blur(64px); backdrop-filter: blur(64px); }
+
+    /* ── Prevent A-Frame from blocking pointer events on overlay UI ── */
+    .a-enter-vr-button { display: none !important; }
+    .a-loader-title    { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

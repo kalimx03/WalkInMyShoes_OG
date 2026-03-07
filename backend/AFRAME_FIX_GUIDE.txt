@@ -1,0 +1,429 @@
+===============================================
+CORRECTED FILES FOR AFRAME + REACT + VITE
+===============================================
+
+Below are the three complete files that fix all your issues:
+1. frontend/public/index.html
+2. src/main.jsx  
+3. src/styles/main.css
+
+Copy-paste each one into its respective location.
+
+===============================================
+FILE 1: frontend/public/index.html
+===============================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Character Encoding & Compatibility -->
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <!-- Viewport & Mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a1a" />
+  
+  <!-- SEO -->
+  <title>WalkInMyShoes - Empathy Through Immersive Experience</title>
+  <meta name="description" content="Experience disability perspectives through immersive VR/AR training" />
+  <meta name="keywords" content="empathy, disability, accessibility, VR, AR, training" />
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  
+  <!-- CRITICAL: Content Security Policy - MUST be before all other scripts -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
+    script-src 'self' https://aframe.io https://cdn.jsdelivr.net https://unpkg.com; 
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; 
+    img-src 'self' data: https: blob:; 
+    font-src 'self' data: https://fonts.googleapis.com https://fonts.gstatic.com; 
+    connect-src 'self' https: wss: blob:; 
+    media-src 'self' https: blob:; 
+    object-src 'none'; 
+    frame-ancestors 'none'; 
+    base-uri 'self'; 
+    form-action 'self';" />
+  
+  <!-- Preconnect for Performance -->
+  <link rel="preconnect" href="https://aframe.io" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="dns-prefetch" href="https://unpkg.com" />
+  
+  <!-- IMPORTANT: Load A-Frame FIRST and synchronously (no defer/async) -->
+  <!-- A-Frame must be loaded before React to prevent "AFRAME is not defined" errors -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  
+  <!-- A-Frame Extras (optional, for advanced components) -->
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.0.0/dist/aframe-extras.min.js"></script>
+  
+  <!-- Loading Screen Styles (inline to avoid FOUC) -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #root {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Loading Screen */
+    .loading-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a0033 50%, #003366 100%);
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      z-index: 9999;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 2rem;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top: 4px solid #7c3aed;
+      border-right: 4px solid #06b6d4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 1.25rem;
+      font-weight: 500;
+      text-align: center;
+      max-width: 300px;
+    }
+
+    .loading-subtext {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 1rem;
+    }
+
+    /* Hide loading screen when React app loads */
+    .loading-container.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main React Root -->
+  <div id="root">
+    <!-- Loading screen shown until React app mounts -->
+    <div class="loading-container" id="loadingScreen">
+      <div class="spinner"></div>
+      <div class="loading-text">WalkInMyShoes</div>
+      <div class="loading-subtext">Building empathy through experience...</div>
+    </div>
+  </div>
+
+  <!-- React App Entry Point (executed by Vite) -->
+  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- Error Handler for Script Failures -->
+  <script>
+    // Global error handler
+    window.addEventListener('error', function(event) {
+      console.error('Global error:', event.error);
+      const loadingScreen = document.getElementById('loadingScreen');
+      if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+        loadingScreen.innerHTML = `
+          <div style="text-align: center; color: #ef4444;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Error Loading Application</div>
+            <div style="color: rgba(255,255,255,0.7); margin-bottom: 1.5rem;">Please try refreshing the page</div>
+            <button onclick="location.reload()" style="
+              padding: 0.75rem 1.5rem;
+              background: #7c3aed;
+              color: white;
+              border: none;
+              border-radius: 0.5rem;
+              cursor: pointer;
+              font-size: 1rem;
+            ">Refresh Page</button>
+          </div>
+        `;
+      }
+    });
+
+    // Unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', function(event) {
+      console.error('Unhandled rejection:', event.reason);
+    });
+
+    // Check if A-Frame loaded correctly
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof AFRAME === 'undefined') {
+        console.warn('A-Frame not available, but React will handle this');
+      } else {
+        console.log('✓ A-Frame loaded successfully');
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+===============================================
+FILE 2: src/main.jsx
+===============================================
+
+// src/main.jsx
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import ErrorBoundary from './components/shared/ErrorBoundary.jsx'
+import './styles/main.css'
+
+// =====================================================
+// CRITICAL: A-Frame is loaded in index.html BEFORE this
+// script, so AFRAME should be available as a global
+// =====================================================
+console.log('main.jsx initializing...')
+console.log('AFRAME available:', typeof AFRAME !== 'undefined')
+
+// Wait for AFRAME to be ready if it exists
+function waitForAFrame(timeout = 3000) {
+  return new Promise((resolve) => {
+    if (typeof AFRAME !== 'undefined' && AFRAME.isComponentized) {
+      console.log('✓ A-Frame is ready')
+      resolve(true)
+      return
+    }
+    
+    let elapsed = 0
+    const checkInterval = setInterval(() => {
+      elapsed += 100
+      
+      if (typeof AFRAME !== 'undefined' && AFRAME.isComponentized) {
+        console.log('✓ A-Frame loaded successfully')
+        clearInterval(checkInterval)
+        resolve(true)
+        return
+      }
+      
+      if (elapsed >= timeout) {
+        console.warn('⚠ A-Frame timeout - continuing without it')
+        clearInterval(checkInterval)
+        resolve(false)
+      }
+    }, 100)
+  })
+}
+
+// Initialize AWS Amplify (if configured)
+async function initializeAmplify() {
+  try {
+    const { Amplify } = await import('aws-amplify')
+    const awsExports = (await import('../aws-exports.js')).default
+    
+    if (awsExports && awsExports.Auth && awsExports.Auth.Cognito) {
+      Amplify.configure(awsExports)
+      console.log('✓ AWS Amplify configured')
+      return true
+    } else {
+      console.log('⚠ AWS configuration incomplete, using default settings')
+      return false
+    }
+  } catch (error) {
+    console.warn('AWS Amplify not configured:', error.message)
+    return false
+  }
+}
+
+// Main initialization function
+async function main() {
+  try {
+    // Hide loading screen
+    const loadingScreen = document.getElementById('loadingScreen')
+    
+    // Wait for A-Frame to initialize
+    console.log('Waiting for A-Frame...')
+    await waitForAFrame(3000)
+    
+    // Initialize AWS (optional)
+    console.log('Initializing AWS...')
+    await initializeAmplify()
+    
+    // Render React app
+    console.log('Rendering React app...')
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    
+    root.render(
+      <React.StrictMode>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </React.StrictMode>
+    )
+    
+    // Hide loading screen after a short delay to ensure render
+    setTimeout(() => {
+      if (loadingScreen) {
+        loadingScreen.classList.add('hidden')
+      }
+    }, 100)
+    
+    console.log('✓ Application initialized successfully')
+  } catch (error) {
+    console.error('Fatal error during initialization:', error)
+    
+    // Show error message
+    const loadingScreen = document.getElementById('loadingScreen')
+    if (loadingScreen) {
+      loadingScreen.innerHTML = `
+        <div style="text-align: center; color: #ef4444;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+          <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">Initialization Error</div>
+          <div style="color: rgba(255,255,255,0.7); margin-bottom: 1rem; font-size: 0.875rem;">
+            ${error.message || 'An unknown error occurred'}
+          </div>
+          <button onclick="location.reload()" style="
+            padding: 0.75rem 1.5rem;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+          ">Retry</button>
+        </div>
+      `
+    }
+  }
+}
+
+// Start the application when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', main)
+} else {
+  main()
+}
+
+
+===============================================
+FILE 3: src/styles/main.css
+===============================================
+
+See the actual file at src/styles/main.css
+(It's very long - over 880 lines)
+
+Key additions at the top:
+- Loading screen styles (#loadingScreen, .loading-container, .spinner)
+- Full Tailwind integration
+- Glass morphism effects
+- Button styles
+- Component utilities
+- Animations (spin, fadeIn, slideIn, etc.)
+- Responsive utilities
+- Scrollbar styling
+- Accessibility support
+
+
+===============================================
+KEY FIXES IMPLEMENTED:
+===============================================
+
+1. ✅ A-Frame Loads FIRST
+   - Loaded synchronously in <head> BEFORE React
+   - No defer/async attributes
+   - Prevents "AFRAME is not defined" errors
+
+2. ✅ Content Security Policy
+   - Allows aframe.io and cdn.jsdelivr.net
+   - NO 'unsafe-eval' violations
+   - Whitelist approach for cross-domain resources
+
+3. ✅ Loading Screen
+   - Shows while A-Frame and React initialize
+   - Hidden via CSS when app is ready
+   - Works without React (pure HTML/CSS)
+
+4. ✅ React Entry Point
+   - Waits for A-Frame to load
+   - Safely initializes AWS Amplify
+   - Renders with ErrorBoundary
+   - Proper error handling
+
+5. ✅ CSS
+   - Comprehensive global styles
+   - Tailwind-ready
+   - Loading screen support
+   - No CSP violations
+
+6. ✅ Error Handling
+   - Global error listeners
+   - Unhandled promise rejection catching
+   - User-friendly error messages
+   - Retry functionality
+
+
+===============================================
+TESTING CHECKLIST:
+===============================================
+
+[] 1. Run: npm run build
+       Expected: Build succeeds with all chunks
+       
+[] 2. Run: npm run dev
+       Expected: Dev server starts on http://localhost:5173
+       
+[] 3. Open http://localhost:5173 in browser
+       Expected: Loading screen shows briefly, then app loads
+       
+[] 4. Check console (F12)
+       Expected: No "AFRAME is not defined" errors
+       Expected: No CSP errors
+       Expected: See "✓ A-Frame loaded successfully" log
+       
+[] 5. Check Network tab
+       Expected: aframe.min.js loads from aframe.io
+       Expected: aframe-extras.min.js loads from cdn.jsdelivr.net
+
+
+===============================================
+TROUBLESHOOTING:
+===============================================
+
+If you still see white screen:
+1. Check browser console (F12) for errors
+2. Verify internet connection (CDN files need to load)
+3. Check Network tab - are CDN scripts loading?
+4. Try: Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
+
+If AFRAME is still not defined:
+1. Check Network tab - aframe.min.js must fully load
+2. Check HTML source - verify scripts are in <head>
+3. Verify no other scripts run before A-Frame loads
+
+If CSP errors appear:
+1. Check the CSP meta tag in index.html
+2. Verify script-src includes all needed domains
+3. Don't use 'unsafe-eval' with this setup
+
+===============================================

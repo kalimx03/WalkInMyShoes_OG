@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "question": "What is the minimum door width required by ADA for wheelchair access?",
+    "options": ["24 inches", "28 inches", "32 inches", "36 inches"],
+    "correct": 2,
+    "explanation": "ADA requires 32 inches of clear width (36 inches recommended) for wheelchair access. This ensures most wheelchairs can pass through comfortably.",
+    "category": "motor"
+  },
+  {
+    "id": 2,
+    "question": "What is the maximum slope allowed for an ADA-compliant ramp?",
+    "options": ["1:8", "1:10", "1:12", "1:15"],
+    "correct": 2,
+    "explanation": "ADA standards specify a maximum slope of 1:12 (8.33% grade) for ramps. This ratio ensures safe incline for wheelchair users.",
+    "category": "motor"
+  },
+  {
+    "id": 3,
+    "question": "What is the minimum contrast ratio required for WCAG 2.1 AA compliance for normal text?",
+    "options": ["3:1", "4.5:1", "7:1", "10:1"],
+    "correct": 1,
+    "explanation": "WCAG 2.1 AA requires a minimum contrast ratio of 4.5:1 for normal text. AAA compliance requires 7:1.",
+    "category": "visual"
+  },
+  {
+    "id": 4,
+    "question": "What percentage of the world's population lives with some form of disability?",
+    "options": ["5%", "10%", "15%", "25%"],
+    "correct": 2,
+    "explanation": "According to the WHO, approximately 15% of the world's population lives with some form of disability, making accessibility crucial for inclusive design.",
+    "category": "general"
+  },
+  {
+    "id": 5,
+    "question": "What is the standard height for accessible light switches according to ADA?",
+    "options": ["36-48 inches", "40-48 inches", "42-48 inches", "44-48 inches"],
+    "correct": 2,
+    "explanation": "ADA standards specify that accessible light switches should be mounted between 40-48 inches from the floor to ensure reachability for wheelchair users.",
+    "category": "motor"
+  },
+  {
+    "id": 6,
+    "question": "Which type of hearing loss is most commonly associated with aging?",
+    "options": ["Conductive", "Sensorineural", "Mixed", "Central"],
+    "correct": 1,
+    "explanation": "Sensorineural hearing loss, often age-related, is the most common type. It affects the inner ear or auditory nerve and is typically permanent.",
+    "category": "hearing"
+  },
+  {
+    "id": 7,
+    "question": "What is the minimum clear floor space required for a wheelchair to make a 180-degree turn?",
+    "options": ["48×48 inches", "60×60 inches", "72×72 inches", "84×84 inches"],
+    "correct": 1,
+    "explanation": "ADA requires a minimum 60×60 inch clear space for wheelchair turning. This ensures users can reverse direction comfortably.",
+    "category": "motor"
+  },
+  {
+    "id": 8,
+    "question": "What is the purpose of an Accessible Pedestrian Signal (APS)?",
+    "options": ["Traffic control", "Audio/tactile crossing information", "Weather protection", "Speed monitoring"],
+    "correct": 1,
+    "explanation": "APS provide audible tones, verbal messages, and tactile surfaces to help pedestrians with vision or hearing disabilities cross streets safely.",
+    "category": "visual"
+  },
+  {
+    "id": 9,
+    "question": "What percentage of websites fail basic accessibility standards according to recent studies?",
+    "options": ["50%", "65%", "80%", "95%"],
+    "correct": 2,
+    "explanation": "Studies show approximately 80% of websites fail basic accessibility standards, highlighting the need for better web accessibility practices.",
+    "category": "general"
+  },
+  {
+    "id": 10,
+    "question": "What is the standard reach range for forward reach according to ADA?",
+    "options": ["15-48 inches", "20-48 inches", "24-48 inches", "30-48 inches"],
+    "correct": 0,
+    "explanation": "ADA specifies a forward reach range of 15-48 inches from the floor. This ensures controls and objects are accessible to wheelchair users.",
+    "category": "motor"
+  }
+]
