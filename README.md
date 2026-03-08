@@ -450,6 +450,9 @@ Well within ₹8,000 ($136) AWS credit for hackathon phase.
 **Kalim Sayyed** — Full Stack Developer & Project Lead
 - GitHub: [@kalimx03](https://github.com/kalimx03)
 
+**Faheem Shiledar** — Backend & Project Enhancer
+- GitHub: [@faheemshiledar](https://github.com/faheemshiledar)
+
 ---
 
 ## 🌐 Links
